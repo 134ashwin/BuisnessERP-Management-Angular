@@ -1,0 +1,118 @@
+/**
+ * Global SCSS Styles
+ * Base styles applied to entire application
+ */
+
+@import './variables.scss';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: $text-primary;
+  background-color: $bg-light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// =============== Typography ===============
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: $font-weight-bold;
+  line-height: 1.2;
+}
+
+h1 { font-size: $font-size-3xl; }
+h2 { font-size: $font-size-2xl; }
+h3 { font-size: $font-size-xl; }
+
+p {
+  margin: 0;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-duration $transition-timing;
+
+  &:hover {
+    color: $primary-dark;
+  }
+}
+
+// =============== Forms ===============
+input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+input:disabled, textarea:disabled, select:disabled {
+  cursor: not-allowed;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+// =============== Lists ===============
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// =============== Code ===============
+code, pre {
+  font-family: 'Courier New', monospace;
+  background-color: $bg-lighter;
+  border-radius: $radius-sm;
+  padding: $space-sm;
+}
+
+// =============== Utility Classes ===============
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 $space-base;
+
+  @media (max-width: $breakpoint-lg) {
+    padding: 0 $space-lg;
+  }
+}
+
+.truncate {
+  @include truncate;
+}
+
+.line-clamp-2 {
+  @include line-clamp(2);
+}
+
+.line-clamp-3 {
+  @include line-clamp(3);
+}

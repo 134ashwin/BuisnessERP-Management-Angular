@@ -1,0 +1,321 @@
+// Premium Dark Theme Variables (Netflix & Modern SaaS Inspired)
+$bg-dark: #0f1015;
+$bg-card: rgba(22, 24, 34, 0.75);
+$bg-card-hover: rgba(30, 33, 48, 0.85);
+$sidebar-bg: #090a0d;
+$accent-red: #e50914;
+$accent-red-glow: rgba(229, 9, 20, 0.35);
+
+// Stat Card Accent Glow Colors
+$color-blue: #3b82f6;
+$color-green: #10b981;
+$color-cyan: #06b6d4;
+$color-amber: #f59e0b;
+
+$text-main: #f3f4f6;
+$text-muted: #9ca3af;
+$border-glass: rgba(255, 255, 255, 0.08);
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: $bg-dark;
+  color: $text-main;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  // Sidebar Styling
+  .sidebar {
+    width: 240px;
+    background: $sidebar-bg;
+    border-right: 1px solid $border-glass;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+
+    .sidebar-header {
+      height: 75px;
+      display: flex;
+      align-items: center;
+      padding: 0 1.75rem;
+      border-bottom: 1px solid $border-glass;
+
+      .brand-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        font-weight: 900;
+        font-size: 1.25rem;
+        letter-spacing: 0.08rem;
+        color: $accent-red;
+        text-shadow: 0 0 12px $accent-red-glow;
+
+        i {
+          font-size: 1.6rem;
+        }
+      }
+    }
+
+    .sidebar-menu {
+      padding: 1.5rem 0.75rem;
+      flex-grow: 1;
+
+      .menu-section-title {
+        padding: 0.5rem 1rem;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: $text-muted;
+        letter-spacing: 0.12rem;
+        text-transform: uppercase;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1rem;
+        color: $text-muted;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 8px;
+        margin-bottom: 0.25rem;
+        transition: all 0.25s ease;
+
+        &:hover {
+          color: $text-main;
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        &.active {
+          color: #ffffff;
+          background: linear-gradient(90deg, $accent-red 0%, rgba(229, 9, 20, 0.2) 100%);
+          font-weight: 700;
+          box-shadow: 0 4px 15px $accent-red-glow;
+        }
+
+        i {
+          width: 20px;
+          text-align: center;
+          font-size: 1.1rem;
+        }
+      }
+    }
+
+    .collapse-btn {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid $border-glass;
+      color: $text-muted;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: $accent-red;
+        color: #ffffff;
+        box-shadow: 0 0 12px $accent-red-glow;
+      }
+    }
+  }
+
+  // Collapsed Sidebar Modifier
+  &.collapsed {
+    .sidebar {
+      width: 88px;
+
+      .brand-name, .menu-section-title, .nav-text {
+        display: none;
+      }
+
+      .sidebar-header {
+        justify-content: center;
+        padding: 0;
+      }
+
+      .nav-item {
+        justify-content: center;
+        padding: 0.85rem;
+      }
+    }
+  }
+
+  // Main Content Area
+  .main-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+
+    .topbar {
+      height: 75px;
+      background: rgba(15, 16, 21, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid $border-glass;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 2rem;
+
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid $border-glass;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.07);
+        }
+
+        .user-name {
+          font-size: 0.875rem;
+          color: $text-main;
+          font-weight: 600;
+        }
+
+        .avatar {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          border: 2px solid $accent-red;
+          box-shadow: 0 0 8px $accent-red-glow;
+        }
+      }
+    }
+
+    .content-body {
+      padding: 2.5rem;
+      flex-grow: 1;
+
+      .page-title {
+        font-size: 2rem;
+        color: #ffffff;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        letter-spacing: -0.02em;
+      }
+
+      // Metrics Grid Setup
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.75rem;
+
+        .metric-card {
+          background: $bg-card;
+          backdrop-filter: blur(16px);
+          border-radius: 16px;
+          padding: 1.5rem;
+          border: 1px solid $border-glass;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+          &:hover {
+            transform: translateY(-4px);
+            background: $bg-card-hover;
+            border-color: rgba(255, 255, 255, 0.2);
+          }
+
+          // Card Border Variants with Glows
+          &.border-blue {
+            border-top: 3px solid $color-blue;
+            &:hover { box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2); }
+            .card-title { color: $color-blue; }
+          }
+          &.border-green {
+            border-top: 3px solid $color-green;
+            &:hover { box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2); }
+            .card-title { color: $color-green; }
+          }
+          &.border-cyan {
+            border-top: 3px solid $color-cyan;
+            &:hover { box-shadow: 0 10px 25px rgba(6, 182, 212, 0.2); }
+            .card-title { color: $color-cyan; }
+          }
+          &.border-amber {
+            border-top: 3px solid $color-amber;
+            &:hover { box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2); }
+            .card-title { color: $color-amber; }
+          }
+
+          .card-details {
+            display: flex;
+            flex-direction: column;
+
+            .card-title {
+              font-size: 0.75rem;
+              font-weight: 800;
+              letter-spacing: 0.08rem;
+              text-transform: uppercase;
+              margin-bottom: 0.5rem;
+            }
+
+            .card-value-container {
+              display: flex;
+              flex-direction: column;
+              gap: 0.75rem;
+
+              .card-value {
+                font-size: 1.75rem;
+                font-weight: 800;
+                color: #ffffff;
+                line-height: 1;
+              }
+
+              .progress-bar-container {
+                width: 120px;
+                height: 0.35rem;
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                overflow: hidden;
+
+                .progress-bar-fill {
+                  height: 100%;
+                  background: linear-gradient(90deg, $color-cyan, $accent-red);
+                  border-radius: 10px;
+                }
+              }
+            }
+          }
+
+          .card-icon-wrapper {
+            i {
+              font-size: 2.2rem;
+              color: rgba(255, 255, 255, 0.15);
+              transition: color 0.3s ease;
+            }
+          }
+
+          &:hover .card-icon-wrapper i {
+            color: rgba(255, 255, 255, 0.4);
+          }
+        }
+      }
+    }
+
+    .footer {
+      background: $sidebar-bg;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: $text-muted;
+      border-top: 1px solid $border-glass;
+    }
+  }
+}

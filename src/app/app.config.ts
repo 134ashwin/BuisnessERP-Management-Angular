@@ -4,6 +4,7 @@ import { provideHttpClient, withInterceptors, HTTP_INTERCEPTORS } from '@angular
 import { routes } from './app.routes';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { HttpRequestInterceptor } from './core/interceptors/http-request.interceptor';
+import { apiInterceptor } from './core/interceptors/api.interceptor';
 
 /**
  * Application Configuration
@@ -13,7 +14,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(
+      withInterceptors([apiInterceptor])
+    ),
     
     // HTTP Interceptors - order matters!
     { provide: HTTP_INTERCEPTORS, useClass: HttpRequestInterceptor, multi: true },

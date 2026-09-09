@@ -1,0 +1,51 @@
+<div class="dashboard-container" [class.collapsed]="isSidebarCollapsed()">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-logo">
+        <i class="fas fa-smile"></i>
+        <span class="brand-name">DMELLO</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+      <div class="menu-section-title"></div>
+      @for (item of navItems(); track item.label) {
+        <a 
+          class="nav-item" 
+          [routerLink]="item.route" 
+          routerLinkActive="active" 
+          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+          <i class="fas" [ngClass]="item.icon"></i>
+          <span class="nav-text">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <button class="collapse-btn" (click)="toggleSidebar()" aria-label="Toggle Navigation">
+      <i class="fas" [ngClass]="isSidebarCollapsed() ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+    </button>
+  </aside>
+
+  <!-- Main Content Layout -->
+  <div class="main-wrapper">
+    <!-- Top Navbar -->
+    <header class="topbar">
+      <div class="user-profile">
+        <span class="user-name">Profile</span>
+        <img src="https://ui-avatars.com/api/?name=Kailash+Choudhary&background=d69e2e&color=fff" alt="User Avatar" class="avatar" />
+      </div>
+    </header>
+
+    <!-- Dynamic Content Area -->
+    <main class="content-body">
+      <!-- Child routes (like /dashboard/sales or default summary grid) render HERE -->
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Copyright &copy; Includes Paid Promotion</p>
+    </footer>
+  </div>
+</div>

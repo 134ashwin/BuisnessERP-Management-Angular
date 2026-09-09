@@ -1,0 +1,119 @@
+$card-bg: #ffffff;
+$text-primary: #5a5c69;
+$text-secondary: #858796;
+$border-color: #e3e6f0;
+
+.sales-page {
+  .page-header {
+    margin-bottom: 1.5rem;
+
+    .page-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+      margin: 0;
+
+      // High-end ambient neon glow on pure black
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.4), 0 0 40px rgba(56, 189, 248, 0.2);
+
+      animation: proReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes proReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(12px);
+        filter: blur(6px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: $text-secondary;
+    }
+  }
+
+  .card {
+    background: $card-bg;
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    border: 1px solid $border-color;
+    padding: 1.25rem;
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .sales-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+
+      th {
+        background-color: #f8f9fc;
+        color: $text-primary;
+        font-weight: 700;
+        padding: 0.75rem 1rem;
+        border-bottom: 2px solid $border-color;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05rem;
+      }
+
+      td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid $border-color;
+        color: $text-primary;
+
+        &.order-id {
+          font-weight: 700;
+          color: #4e73df;
+        }
+
+        &.buyer-name {
+          font-weight: 600;
+        }
+
+        &.sku-details {
+          color: #2e59d9;
+          font-family: monospace;
+          font-size: 0.8rem;
+        }
+
+        &.amount {
+          font-weight: 700;
+        }
+      }
+
+      .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.2rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+
+        &.completed {
+          background-color: #e8f8f5;
+          color: #1cc88a;
+        }
+
+        &.shipped {
+          background-color: #e8f4f8;
+          color: #36b9cc;
+        }
+
+        &.pending {
+          background-color: #fef9e7;
+          color: #f6c23e;
+        }
+      }
+    }
+  }
+}

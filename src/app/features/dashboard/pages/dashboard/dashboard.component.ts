@@ -38,7 +38,9 @@ export class DashboardComponent {
     { label: 'Supplier Products', icon: 'fa-truck-loading', route: '/dashboard/supplier-products' },
     { label: 'Suppliers', icon: 'fa-store', route: '/dashboard/suppliers' },
     { label: 'Returns', icon: 'fa-undo', route: '/dashboard/returns' },
-    { label: 'History & Production Raw Material Unit', icon: 'fa-history', route: '/dashboard/history' },
+    { label: 'History', icon: 'fa-history', route: '/dashboard/history' },
+    { label: 'Production Unit', icon: 'fa-history', route: '/dashboard/history' },
+    { label: 'Raw Material', icon: 'fa-history', route: '/dashboard/history' },
   ]);
 
   isSidebarCollapsed = signal(false);

@@ -1,10 +1,8 @@
+// apiInterceptor (core/interceptors/api.interceptor.ts): Intercepts outgoing requests to attach tokens and automatically refreshes tokens on 401 Unauthorized responses.
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { ApiService } from '../services/api.service';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { catchError, switchMap, filter, take, throwError, BehaviorSubject } from 'rxjs';
-
 
 // Mutex flags to handle concurrent 401 requests safely
 let isRefreshing = false;
@@ -13,9 +11,21 @@ const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 export const apiInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
 
-  const authReq = req.clone({
+  // 1. Safely retrieve token without TS error
+  const authServiceAny = authService as any;
+  const token = typeof authServiceAny.getToken === 'function' ? authServiceAny.getToken() : null;
+
+  let authReq = req.clone({
     withCredentials: true
   });
+
+  if (token && !req.headers.has('Authorization')) {
+    authReq = authReq.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -34,7 +44,7 @@ export const apiInterceptor: HttpInterceptorFn = (req, next) => {
           take(1),
           switchMap((isSuccess) => {
             if (isSuccess) {
-              return next(authReq); // Retry original request with fresh cookies
+              return next(authReq.clone());
             }
             return throwError(() => error);
           })
@@ -50,8 +60,8 @@ export const apiInterceptor: HttpInterceptorFn = (req, next) => {
           isRefreshing = false;
           refreshTokenSubject.next(true); // Unlock and notify queued requests
 
-          console.log('Refresh successful! Retrying profile request...');
-          return next(authReq); // Retry original request
+          console.log('Refresh successful! Retrying request...');
+          return next(authReq.clone());
         }),
         catchError((refreshError) => {
           isRefreshing = false;

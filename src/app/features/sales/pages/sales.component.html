@@ -1,0 +1,67 @@
+<div class="sales-page">
+  <div class="page-header">
+    <div class="header-titles">
+      <h1 class="page-title">Sales Orders</h1>
+      <span class="subtitle">Overview of client sales, buyers, and order SKU details</span>
+    </div>
+
+    <!-- Excel File Upload Section -->
+    <div class="action-bar">
+      <!-- 1. Hidden Native File Input -->
+      <input 
+        #fileInput 
+        type="file" 
+        (change)="onFileSelected($event)" 
+        accept=".xlsx, .xls" 
+        style="display: none;" />
+
+      <!-- 2. Visible Clickable Button -->
+      <button 
+        type="button" 
+        class="btn-import" 
+        [disabled]="isUploading()" 
+        (click)="fileInput.click()">
+        <i class="fas fa-file-excel"></i>
+        <span>{{ isUploading() ? 'Importing...' : 'Import Excel' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="sales-table">
+          <thead>
+            <tr>
+              <th>Date (D/M/Y)</th>
+              <th>Order No</th>
+              <th>Main SKU</th>
+              <th>Sub SKU</th>
+              <th>Size</th>
+              <th>Customer</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of salesOrders(); track order.orderNo) {
+              <tr>
+                <td>{{ order.orderDate }}</td>
+                <td class="order-id">{{ order.orderNo }}</td>
+                <td>{{ order.mainSku }}</td>
+                <td>{{ order.subSku }}</td>
+                <td>{{ order.size }}</td>
+                <td class="buyer-name">{{ order.customer }}</td>
+                <td>{{ order.description }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty-state">No sales records found. Click "Import Excel" to upload data.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

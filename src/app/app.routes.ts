@@ -20,7 +20,7 @@ export const routes: Routes = [
     children:[
       {
         path: 'sales',
-        loadComponent: () => import('./pages/sales/sales.component').then(m => m.SalesComponent)
+        loadComponent: () => import('./features/sales/pages/sales.component').then(m => m.SalesComponent)
       }
     ]
   },

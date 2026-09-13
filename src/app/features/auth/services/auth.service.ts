@@ -1,3 +1,4 @@
+// AuthService (features/auth/services/auth.service.ts): Manages user session state, stores tokens, handles login(), logout(), and calls the /auth/refresh endpoint.
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';

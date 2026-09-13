@@ -1,3 +1,5 @@
+
+// ApiService (core/services/api.service.ts): Generic HTTP wrapper (get, post, put, delete). It does NOT manage user session state, tokens, or login status.
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';

@@ -1,0 +1,8 @@
+
+{
+    "_comment": "This tell Azure: Whenever a user requests ANY route that isn't a static file (like an image or CSS) always serve index.html and let Angular handle the route.",
+   "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/js/*"]
+  }
+}

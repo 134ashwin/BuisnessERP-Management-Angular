@@ -1,67 +1,99 @@
-<div class="sales-page">
+<div class="sales-container">
+  <!-- Page Header -->
   <div class="page-header">
-    <div class="header-titles">
-      <h1 class="page-title">Sales Orders</h1>
-      <span class="subtitle">Overview of client sales, buyers, and order SKU details</span>
+    <h1 class="page-title">Sales</h1>
+    <p class="subtitle">Live order feed and database imports</p>
+  </div>
+
+  <!-- Filter Controls -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <!-- Live Filter Input: Instant local search on input -->
+      <input 
+        type="text" 
+        class="input-control"
+        placeholder="Search by Order No..." 
+        [value]="searchOrderNo()" 
+        (input)="updateOrderNo($event)" />
+
+      <!-- Live Date Picker Filter -->
+      <input 
+        type="date" 
+        class="input-control date-picker"
+        [value]="searchDate()" 
+        (change)="updateDate($event)" />
+
+      <button class="btn btn-secondary" (click)="onReset()">Reset</button>
     </div>
 
-    <!-- Excel File Upload Section -->
-    <div class="action-bar">
-      <!-- 1. Hidden Native File Input -->
-      <input 
-        #fileInput 
-        type="file" 
-        (change)="onFileSelected($event)" 
-        accept=".xlsx, .xls" 
-        style="display: none;" />
-
-      <!-- 2. Visible Clickable Button -->
-      <button 
-        type="button" 
-        class="btn-import" 
-        [disabled]="isUploading()" 
-        (click)="fileInput.click()">
-        <i class="fas fa-file-excel"></i>
-        <span>{{ isUploading() ? 'Importing...' : 'Import Excel' }}</span>
-      </button>
+    <!-- Upload Button -->
+    <div class="upload-section">
+      <label class="btn-import-wrapper">
+        <input type="file" (change)="onFileSelected($event)" accept=".xlsx, .xls" [disabled]="isUploading()" />
+        <span class="btn-import">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          {{ isUploading() ? 'Uploading...' : 'Import Excel' }}
+        </span>
+      </label>
     </div>
   </div>
 
-  <!-- Table Card -->
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="sales-table">
-          <thead>
+  <!-- Data Table Container -->
+  <div class="table-card">
+    <div class="table-responsive">
+      <table class="sales-table">
+        <thead>
+          <tr>
+            <th>Order Date</th>
+            <th>Order No</th>
+            <th>Main SKU</th>
+            <th>Sub SKU</th>
+            <th>Size</th>
+            <th>Customer</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Bound to pagedSalesOrders() computed slice -->
+          @for (order of pagedSalesOrders(); track order.id) {
             <tr>
-              <th>Date (D/M/Y)</th>
-              <th>Order No</th>
-              <th>Main SKU</th>
-              <th>Sub SKU</th>
-              <th>Size</th>
-              <th>Customer</th>
-              <th>Description</th>
+              <td class="date-cell">{{ order.orderDate }}</td>
+              <td class="order-id">{{ order.orderNo }}</td>
+              <td class="sku-cell">{{ order.mainSku }}</td>
+              <td class="sku-cell">{{ order.subSku }}</td>
+              <td class="size-cell">{{ order.size }}</td>
+              <td class="buyer-name">{{ order.customer }}</td>
+              <td class="desc-cell">{{ order.description }}</td>
             </tr>
-          </thead>
-          <tbody>
-            @for (order of salesOrders(); track order.orderNo) {
+          } @empty {
+            @if (!isLoading()) {
               <tr>
-                <td>{{ order.orderDate }}</td>
-                <td class="order-id">{{ order.orderNo }}</td>
-                <td>{{ order.mainSku }}</td>
-                <td>{{ order.subSku }}</td>
-                <td>{{ order.size }}</td>
-                <td class="buyer-name">{{ order.customer }}</td>
-                <td>{{ order.description }}</td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="7" class="empty-state">No sales records found. Click "Import Excel" to upload data.</td>
+                <td colspan="7" class="empty-cell">No sales records found.</td>
               </tr>
             }
-          </tbody>
-        </table>
-      </div>
+          }
+        </tbody>
+      </table>
     </div>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination-bar">
+    <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber() === 1 || isLoading()">
+      &#8592; Previous
+    </button>
+    
+    <span class="page-info">
+      Page <strong>{{ pageNumber() }}</strong> of <strong>{{ totalPages() }}</strong> 
+      <span class="total-count">({{ totalCount() }} total orders)</span>
+    </span>
+
+    <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber() >= totalPages() || isLoading()">
+      Next &#8594;
+    </button>
   </div>
 </div>

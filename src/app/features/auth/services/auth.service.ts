@@ -10,6 +10,7 @@ import {
 } from '../models/auth.model'; // Imported from feature models folder!
 import { HttpClient, HttpBackend } from '@angular/common/http';
 import { Router } from '@angular/router';
+import {environment}  from '../../../../environments/environment'; // Import environment for baseUrl
 
 
 @Injectable({
@@ -22,7 +23,7 @@ export class AuthService {
 
   // Create a clean HttpClient that bypasses all interceptors
   private rawHttp = new HttpClient(this.httpBackend);
-  private baseUrl = 'https://localhost:7098/api';
+  private baseUrl = 'environment.apiUrl';
 
   // In-memory Signal for auth state
   currentUser = signal<string | null>(null);

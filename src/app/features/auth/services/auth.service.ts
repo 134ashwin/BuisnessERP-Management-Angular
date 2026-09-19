@@ -10,7 +10,7 @@ import {
 } from '../models/auth.model'; // Imported from feature models folder!
 import { HttpClient, HttpBackend } from '@angular/common/http';
 import { Router } from '@angular/router';
-import {environment}  from '../../../../environments/environment'; // Import environment for baseUrl
+import {environment}  from '../../../../environments/environment.prod'; // Import environment for baseUrl
 
 
 @Injectable({

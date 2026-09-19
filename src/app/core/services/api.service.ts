@@ -3,13 +3,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment.prod'; // Import environment for baseUrl
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   private http = inject(HttpClient);
-  private readonly baseUrl = 'https://localhost:7098/api'; // Single source of truth for API base URL
+  private readonly baseUrl = environment.apiUrl; // Single source of truth for API base URL
 
   // Global HTTP options required for HttpOnly Cookie authentication
   private readonly defaultOptions = {

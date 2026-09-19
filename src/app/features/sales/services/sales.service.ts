@@ -6,6 +6,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SalesOrder, PagedResult, SalesFilter } from '../models/sales.model';
+import { environment } from '../../../../environments/environment.prod'; // Import environment for baseUrl
 
 
 @Injectable({
@@ -13,23 +14,23 @@ import { SalesOrder, PagedResult, SalesFilter } from '../models/sales.model';
 })
 export class SalesService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://localhost:7098/api/sales';
+  private apiUrl = environment.apiUrl; // Single source of truth for API base URL
 
   getSalesOrders(filters: SalesFilter): Observable<PagedResult<SalesOrder>> {
-  let params = new HttpParams()
-    .set('pageNumber', filters.pageNumber.toString())
-    .set('pageSize', filters.pageSize.toString());
+    let params = new HttpParams()
+      .set('pageNumber', filters.pageNumber.toString())
+      .set('pageSize', filters.pageSize.toString());
 
-  if (filters.orderNo?.trim()) {
-    params = params.set('orderNo', filters.orderNo.trim());
+    if (filters.orderNo?.trim()) {
+      params = params.set('orderNo', filters.orderNo.trim());
+    }
+
+    if (filters.date) {
+      params = params.set('date', filters.date);
+    }
+
+    return this.http.get<PagedResult<SalesOrder>>(this.apiUrl, { params });
   }
-
-  if (filters.date) {
-    params = params.set('date', filters.date);
-  }
-
-  return this.http.get<PagedResult<SalesOrder>>(this.apiUrl, { params });
-}
 
   importExcel(file: File): Observable<{ message: string }> {
     const formData = new FormData();

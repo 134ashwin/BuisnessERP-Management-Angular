@@ -4,7 +4,7 @@
  */
 export const environment = {
   production: true,
-  apiUrl: 'https://your-api-app-service.azurewebsites.net/api',
+  apiUrl: 'https://dmellobuisnessportal-gtf0fscqh8grbwdb.westus3-01.azurewebsites.net/api',
   apiTimeout: 30000,
   logging: {
     enableLogging: false,

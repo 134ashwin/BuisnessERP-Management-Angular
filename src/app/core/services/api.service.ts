@@ -3,7 +3,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment.prod'; // Import environment for baseUrl
+import { environment } from '../../../environments/environment'; // Import environment for baseUrl
 
 @Injectable({
   providedIn: 'root'
@@ -33,3 +33,12 @@ export class ApiService {
     return this.http.delete<T>(`${this.baseUrl}/${url}`, this.defaultOptions);
   }
 }
+
+
+
+//About Api Service 
+
+// Where it lives: src/app/core/services/api.service.ts
+// Why it exists: It is a single, reusable wrapper around Angular's HttpClient. It attaches the base URL (environment.apiUrl) 
+// and default headers to every single HTTP call in your entire app.
+// What problem it solves: Stops you from repeating https://... and error-handling code in 20 different service files.

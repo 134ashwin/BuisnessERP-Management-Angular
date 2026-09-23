@@ -1,51 +1,72 @@
-<div class="dashboard-container" [class.collapsed]="isSidebarCollapsed()">
+<div class="min-h-screen bg-[#141414] text-white flex flex-col md:flex-row w-full overflow-x-hidden">
+  
   <!-- Sidebar Navigation -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="brand-logo">
-        <i class="fas fa-smile"></i>
-        <span class="brand-name">DMELLO</span>
+  <aside 
+    class="bg-[#1f1f1f] border-r border-white/10 flex flex-col justify-between transition-all duration-300 z-30 shrink-0 w-full"
+    [class.md:w-16]="isSidebarCollapsed()"
+    [class.md:w-64]="!isSidebarCollapsed()">
+    
+    <div>
+      <!-- Brand Header -->
+      <div class="h-16 flex items-center px-4 border-b border-white/10 overflow-hidden">
+        <div class="flex items-center gap-3 text-[#E50914] font-bold text-xl">
+          <i class="fas fa-smile text-2xl shrink-0"></i>
+          @if (!isSidebarCollapsed()) {
+            <span class="tracking-wider text-white font-extrabold truncate">DMELLO</span>
+          }
+        </div>
       </div>
+
+      <!-- Navigation Links -->
+      <nav class="p-2 space-y-1">
+        @for (item of navItems(); track item.label) {
+          <a 
+            [routerLink]="item.route" 
+            routerLinkActive="bg-[#E50914] text-white font-semibold" 
+            [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 transition-colors group">
+            <i class="fas w-5 text-center text-base shrink-0" [class]="item.icon"></i>
+            @if (!isSidebarCollapsed()) {
+              <span class="text-sm truncate">{{ item.label }}</span>
+            }
+          </a>
+        }
+      </nav>
     </div>
 
-    <nav class="sidebar-menu">
-      <div class="menu-section-title"></div>
-      @for (item of navItems(); track item.label) {
-        <a 
-          class="nav-item" 
-          [routerLink]="item.route" 
-          routerLinkActive="active" 
-          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
-          <i class="fas" [ngClass]="item.icon"></i>
-          <span class="nav-text">{{ item.label }}</span>
-        </a>
-      }
-    </nav>
-
-    <button class="collapse-btn" (click)="toggleSidebar()" aria-label="Toggle Navigation">
-      <i class="fas" [ngClass]="isSidebarCollapsed() ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+    <!-- Collapse Toggle Button (Desktop Only) -->
+    <button 
+      (click)="toggleSidebar()" 
+      type="button"
+      aria-label="Toggle Navigation"
+      class="hidden md:flex items-center justify-center h-12 border-t border-white/10 text-neutral-400 hover:text-white hover:bg-white/5 transition-colors w-full">
+      <i class="fas" [class.fa-chevron-right]="isSidebarCollapsed()" [class.fa-chevron-left]="!isSidebarCollapsed()"></i>
     </button>
   </aside>
 
   <!-- Main Content Layout -->
-  <div class="main-wrapper">
+  <div class="flex-1 flex flex-col min-w-0 w-full min-h-screen">
+    
     <!-- Top Navbar -->
-    <header class="topbar">
-      <div class="user-profile">
-        <span class="user-name">Profile</span>
-        <img src="https://ui-avatars.com/api/?name=Kailash+Choudhary&background=d69e2e&color=fff" alt="User Avatar" class="avatar" />
+    <header class="h-16 bg-[#1f1f1f] border-b border-white/10 px-4 sm:px-6 flex items-center justify-end shrink-0">
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-medium text-neutral-300 hidden sm:inline">Kailash Choudhary</span>
+        <img 
+          src="https://ui-avatars.com/api/?name=Kailash+Choudhary&background=d69e2e&color=fff" 
+          alt="User Avatar" 
+          class="w-9 h-9 rounded-full border border-white/20 object-cover" />
       </div>
     </header>
 
     <!-- Dynamic Content Area -->
-    <main class="content-body">
-      <!-- Child routes (like /dashboard/sales or default summary grid) render HERE -->
+    <main class="flex-1 p-3 sm:p-6 w-full min-w-0 overflow-y-auto">
       <router-outlet></router-outlet>
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="p-4 border-t border-white/10 bg-[#141414] text-center text-xs text-neutral-500 shrink-0">
       <p>Copyright &copy; Includes Paid Promotion</p>
     </footer>
   </div>
+
 </div>

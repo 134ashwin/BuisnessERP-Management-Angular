@@ -6,14 +6,27 @@ $netflix-red: #E50914;
 $accent-blue: #38bdf8;
 
 .products-wrapper {
-  // Fluid padding that respects main layout dashboard bounds
   padding: 1.5rem 2rem;
   width: 100%;
   box-sizing: border-box;
 
+  // Tablet View (iPad / Portrait Tablets)
+  @media (max-width: 768px) {
+    padding: 1rem 1rem;
+  }
+
+  // Mobile View (iPhone / Android Phones)
+  @media (max-width: 480px) {
+    padding: 0.75rem 0.5rem;
+  }
+
   // Header Section
   .page-header {
     margin-bottom: 1.5rem;
+
+    @media (max-width: 480px) {
+      margin-bottom: 1rem;
+    }
 
     .page-title {
       font-size: 2rem;
@@ -22,16 +35,28 @@ $accent-blue: #38bdf8;
       color: $text-primary;
       margin: 0 0 0.3rem 0;
       text-shadow: 0 0 20px rgba(229, 9, 20, 0.25);
+
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 1.25rem;
+      }
     }
 
     .subtitle {
       font-size: 0.875rem;
       color: $text-secondary;
       margin: 0;
+
+      @media (max-width: 480px) {
+        font-size: 0.75rem;
+      }
     }
   }
 
-  // Filter Bar
+  // Filter Bar - Stacks vertically on mobile screens
   .filter-bar {
     display: flex;
     justify-content: space-between;
@@ -43,21 +68,38 @@ $accent-blue: #38bdf8;
     margin-bottom: 1.5rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+      padding: 0.85rem;
+    }
+
     .filter-group {
       display: flex;
       align-items: center;
       gap: 0.75rem;
+      width: 100%;
+
+      @media (max-width: 480px) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+      }
     }
 
     .search-input-wrapper {
       position: relative;
       display: flex;
       align-items: center;
+      flex-grow: 1;
+      width: 100%;
 
       .search-icon {
         position: absolute;
         left: 12px;
         color: #737373;
+        pointer-events: none;
       }
 
       .input-control {
@@ -70,6 +112,12 @@ $accent-blue: #38bdf8;
         width: 300px;
         outline: none;
         transition: all 0.2s ease;
+
+        // Makes input stretch dynamically on small screens
+        @media (max-width: 768px) {
+          width: 100%;
+          box-sizing: border-box;
+        }
 
         &::placeholder {
           color: #737373;
@@ -92,6 +140,13 @@ $accent-blue: #38bdf8;
       border: none;
       cursor: pointer;
       transition: background 0.2s ease;
+      white-space: nowrap;
+
+      @media (max-width: 480px) {
+        width: 100%;
+        padding: 0.75rem;
+        text-align: center;
+      }
 
       &:hover {
         background: #444444;
@@ -108,7 +163,10 @@ $accent-blue: #38bdf8;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 
     .table-responsive {
+      width: 100%;
       overflow-x: auto;
+      // Enables smooth scrolling momentum on iOS devices
+      -webkit-overflow-scrolling: touch; 
     }
 
     .products-table {
@@ -116,6 +174,11 @@ $accent-blue: #38bdf8;
       border-collapse: collapse;
       text-align: left;
       font-size: 0.875rem;
+      min-width: 500px; // Ensures table structure does not collapse on narrow screens
+
+      @media (max-width: 480px) {
+        min-width: 100%; // Lets table fill available mobile width
+      }
 
       th {
         background-color: #181818;
@@ -126,6 +189,11 @@ $accent-blue: #38bdf8;
         font-size: 0.75rem;
         letter-spacing: 0.08em;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+        @media (max-width: 768px) {
+          padding: 0.75rem 0.85rem;
+          font-size: 0.7rem;
+        }
 
         &.col-expand { width: 40px; }
         &.col-sku { width: 30%; }
@@ -151,15 +219,22 @@ $accent-blue: #38bdf8;
           border-bottom: 1px solid rgba(255, 255, 255, 0.05);
           color: #d4d4d4;
 
+          @media (max-width: 768px) {
+            padding: 0.75rem 0.85rem;
+            font-size: 0.8rem;
+          }
+
           &.sku-cell {
             font-weight: 700;
             color: $accent-blue;
+            word-break: break-word;
           }
 
           &.main-sku-cell {
             font-family: 'Courier New', Courier, monospace;
             color: #ffffff;
             font-weight: 600;
+            word-break: break-word;
           }
 
           &.count-badge-cell {
@@ -175,6 +250,12 @@ $accent-blue: #38bdf8;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 700;
+            white-space: nowrap;
+
+            @media (max-width: 480px) {
+              padding: 0.2rem 0.4rem;
+              font-size: 0.65rem;
+            }
           }
 
           .chevron {
@@ -203,10 +284,20 @@ $accent-blue: #38bdf8;
           padding: 1.25rem;
           box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6);
 
+          @media (max-width: 768px) {
+            padding: 0.75rem;
+          }
+
           .sub-sku-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            // Adjusts minimum card width down to 100% on small screens
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 1rem;
+
+            @media (max-width: 480px) {
+              grid-template-columns: 1fr; // Single column on small phones
+              gap: 0.65rem;
+            }
 
             .sub-sku-card {
               background: #222222;
@@ -232,6 +323,11 @@ $accent-blue: #38bdf8;
                 border: 1px solid rgba(255, 255, 255, 0.08);
                 flex-shrink: 0;
 
+                @media (max-width: 480px) {
+                  width: 48px;
+                  height: 48px;
+                }
+
                 .product-img {
                   width: 100%;
                   height: 100%;
@@ -250,6 +346,7 @@ $accent-blue: #38bdf8;
                     font-weight: 700;
                     color: #ffffff;
                     font-size: 0.85rem;
+                    word-break: break-all;
                   }
                 }
 
@@ -274,7 +371,6 @@ $accent-blue: #38bdf8;
           }
         }
       }
-
       .empty-cell {
         text-align: center;
         padding: 3rem;

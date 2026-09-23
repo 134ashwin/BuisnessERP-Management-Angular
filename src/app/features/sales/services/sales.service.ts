@@ -29,12 +29,12 @@ export class SalesService {
       params = params.set('date', filters.date);
     }
 
-    return this.http.get<PagedResult<SalesOrder>>(this.apiUrl, { params });
+    return this.http.get<PagedResult<SalesOrder>>(this.apiUrl + '/sales', { params });
   }
 
   importExcel(file: File): Observable<{ message: string }> {
     const formData = new FormData();
     formData.append('file', file, file.name);
-    return this.http.post<{ message: string }>(`${this.apiUrl}/import`, formData);
+    return this.http.post<{ message: string }>(`${this.apiUrl}/sales/import`, formData);
   }
 }

@@ -40,7 +40,7 @@ export class DashboardComponent {
     { label: 'Returns', icon: 'fa-undo', route: '/dashboard/returns' },
     { label: 'History', icon: 'fa-history', route: '/dashboard/history' },
     { label: 'Production Unit', icon: 'fa-history', route: '/dashboard/history' },
-    { label: 'Raw Material', icon: 'fa-history', route: '/dashboard/history' },
+    { label: 'Raw Material', icon: 'fa-history', route: '/dashboard/raw_material' },
   ]);
 
   isSidebarCollapsed = signal(false);

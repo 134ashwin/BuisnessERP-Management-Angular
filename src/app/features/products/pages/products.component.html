@@ -1,103 +1,281 @@
-<div class="w-full px-2 py-3 sm:px-4 sm:py-4 md:px-8 md:py-6 box-border">
-  <!-- Page Header -->
-  <div class="mb-4 sm:mb-6">
-    <div>
-      <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white m-0 mb-1 drop-shadow-[0_0_20px_rgba(229,9,20,0.25)]">
-        Products
-      </h1>
-      <p class="text-xs sm:text-sm text-neutral-400 m-0">
-        SKU hierarchy, inventory locations, and supplier mapping
+<div class="products-container">
+  <!-- 1. Page Header & Real-time Metrics -->
+  <header class="page-header">
+    <div class="header-info">
+      <h1 class="page-title">Products</h1>
+      <p class="page-subtitle">
+        <span>Master SKU repository &amp; variant tracking</span>
+        <span class="normalization-tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          
+        </span>
       </p>
     </div>
-  </div>
 
-  <!-- Filter Controls -->
-  <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-[#1f1f1f] p-3.5 sm:p-4 md:px-5 rounded-xl border border-white/10 mb-6 shadow-[0_8px_24px_rgba(0,0,0,0.3)]">
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full">
-      <div class="relative flex items-center grow w-full">
-        <svg class="absolute left-3 text-neutral-500 pointer-events-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="header-metrics">
+      <div class="metric-pill">
+        <span class="metric-label">Master SKUs</span>
+        <span class="metric-value val-cyan">{{ totalProductsCount() }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-label">Sub-SKUs</span>
+        <span class="metric-value">{{ totalSubSkusCount() }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-label">In Stock</span>
+        <span class="metric-value val-green">{{ inStockCount() }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-label">Low Stock</span>
+        <span class="metric-value val-amber">{{ lowStockCount() }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Interactive Filtering Toolbar -->
+  <section class="toolbar-card">
+    <div class="toolbar-top">
+      <!-- Search Input across all 8 fields -->
+      <div class="search-box-container">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input 
-          type="text" 
-          class="w-full sm:w-[300px] bg-[#2b2b2b] border border-white/15 text-white pl-9 pr-4 py-2.5 rounded-md text-sm outline-none transition-all placeholder:text-neutral-500 focus:border-[#E50914] focus:ring-2 focus:ring-[#E50914]/25" 
-          placeholder="Search by SKU or Main SKU..." 
-          [value]="searchQuery()" 
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by SKU, Sub-SKU, Supplier, Size, Location, Status, Date..."
+          [value]="searchQuery()"
           (input)="updateSearch($event)" />
+        @if (searchQuery()) {
+          <button class="clear-btn" (click)="clearSearch()" title="Clear search">✕</button>
+        }
       </div>
-      <button 
-        class="w-full sm:w-auto bg-[#333333] text-neutral-200 px-5 py-2.5 sm:py-2 rounded-md font-semibold text-xs sm:text-sm border-0 cursor-pointer whitespace-nowrap transition-colors hover:bg-[#444444] text-center" 
-        (click)="searchQuery.set('')">
-        Reset
+
+      <!-- Action Buttons -->
+      <div class="toolbar-actions">
+        <button class="btn btn-secondary" (click)="toggleExpandAll()">
+          <span>{{ isAllExpanded() ? 'Collapse All' : 'Expand All' }}</span>
+        </button>
+        <button class="btn btn-outline" (click)="clearSearch(); setStatusFilter('ALL')">
+          <span>Reset Filters</span>
+        </button>
+        <button class="btn btn-outline" (click)="loadProducts()" title="Refresh product catalog">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Status Filter Pills -->
+    <div class="status-filter-bar">
+      <span class="filter-label">Filter Status:</span>
+      <button
+        class="chip-btn"
+        [class.active]="statusFilter() === 'ALL'"
+        (click)="setStatusFilter('ALL')">
+        All Items
+      </button>
+      <button
+        class="chip-btn"
+        [class.active]="statusFilter() === 'In Stock'"
+        (click)="setStatusFilter('In Stock')">
+        In Stock
+      </button>
+      <button
+        class="chip-btn"
+        [class.active]="statusFilter() === 'Low Stock'"
+        (click)="setStatusFilter('Low Stock')">
+        Low Stock
+      </button>
+      <button
+        class="chip-btn"
+        [class.active]="statusFilter() === 'Out of Stock'"
+        (click)="setStatusFilter('Out of Stock')">
+        Out of Stock
+      </button>
+      <button
+        class="chip-btn"
+        [class.active]="statusFilter() === 'Active'"
+        (click)="setStatusFilter('Active')">
+        Active
       </button>
     </div>
-  </div>
+  </section>
 
-  <!-- Data Table Container -->
-  <div class="bg-[#1f1f1f] rounded-xl border border-white/10 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-    <div class="w-full overflow-x-auto [-webkit-overflow-scrolling:touch]">
-      <table class="w-full border-collapse text-left text-sm min-w-full sm:min-w-[500px]">
+  <!-- 3. Normalized Master Products Table -->
+  <main class="table-card">
+    <div class="table-responsive">
+      <table class="products-table">
         <thead>
-          <tr class="bg-[#181818] border-b border-white/10 text-neutral-500 font-bold text-[0.7rem] sm:text-xs uppercase tracking-wider">
-            <th class="w-[40px] px-3.5 py-3 sm:px-5 sm:py-4"></th>
-            <th class="w-[30%] px-3.5 py-3 sm:px-5 sm:py-4">SKU</th>
-            <th class="w-[40%] px-3.5 py-3 sm:px-5 sm:py-4">Main SKU</th>
-            <th class="w-[30%] px-3.5 py-3 sm:px-5 sm:py-4 text-right">Sub SKUs</th>
+          <tr>
+            <th class="th-toggle" aria-label="Expand or Collapse row"></th>
+            <th class="th-date">Date</th>
+            <th class="th-main-sku">Main SKU</th>
+            <th class="th-main-sku">Size</th>
+            <th class="th-desc">Description</th>
+            <th class="th-supplier">Supplier</th>
+            <th class="th-location">Location</th>
+            <th class="th-status">Status</th>
+            <th class="th-variants">Sub-SKUs</th>
           </tr>
         </thead>
         <tbody>
           @for (product of filteredProducts(); track product.id) {
-            <!-- Parent Row -->
-            <tr 
-              class="cursor-pointer transition-colors hover:bg-white/[0.03]"
-              [class.bg-[#E50914]/5]="product.isExpanded" 
-              (click)="toggleRow(product.id)">
-              <td class="px-3.5 py-3 sm:px-5 sm:py-4 border-b border-white/5 text-neutral-300">
-                <span 
-                  class="inline-block transition-transform duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] text-[0.7rem] text-neutral-400"
-                  [class.rotate-90]="product.isExpanded"
-                  [class.text-[#E50914]]="product.isExpanded">&#9654;</span>
+            <!-- Normalized Root Parent Row -->
+            <tr
+              class="parent-row"
+              [class.is-expanded]="product.isExpanded"
+              (click)="toggleRow(product.id, $event)"
+              tabindex="0"
+              (keydown.enter)="toggleRow(product.id)">
+              
+              <!-- 0. Expansion Toggle -->
+              <td class="toggle-cell">
+                <span class="chevron" [class.expanded]="product.isExpanded">&#9654;</span>
               </td>
-              <td class="px-3.5 py-3 sm:px-5 sm:py-4 border-b border-white/5 font-bold text-[#38bdf8] break-words text-xs sm:text-sm">
-                {{ product.sku }}
+
+              <!-- 1. Date_d_m_y -->
+              <td class="date-cell">
+                {{ product.Date_d_m_y }}
               </td>
-              <td class="px-3.5 py-3 sm:px-5 sm:py-4 border-b border-white/5 font-mono text-white font-semibold break-words text-xs sm:text-sm">
-                {{ product.mainSku }}
+
+              <!-- 2. mainSku -->
+              <td class="main-sku-cell">
+                <div class="sku-badge-box">
+                  <span class="main-sku-text">{{ product.mainSku }}</span>
+                  <button
+                    class="copy-icon-btn"
+                    title="Copy SKU"
+                    (click)="copySku(product.mainSku, $event)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                </div>
               </td>
-              <td class="px-3.5 py-3 sm:px-5 sm:py-4 border-b border-white/5 text-right">
-                <span class="inline-block px-1.5 py-0.5 sm:px-2.5 sm:py-1 bg-[#E50914]/15 border border-[#E50914]/30 text-[#ff4d4d] rounded-full text-[0.65rem] sm:text-xs font-bold whitespace-nowrap">
-                  {{ product.subSkus.length }} Sub SKUs
+
+              <!-- 3. Description -->
+              <td class="desc-cell">
+                <div class="desc-text" [title]="product.description">
+                  {{ product.description }}
+                </div>
+              </td>
+
+              <!-- 4. Supplier (Lifted to Root Entity) -->
+              <td class="supplier-cell">
+                <div class="supplier-tag">
+                  <span class="tag-icon">🏢</span>
+                  <span>{{ product.supplier }}</span>
+                </div>
+              </td>
+
+              <!-- 5. Location (Lifted to Root Entity) -->
+              <td class="location-cell">
+                <div class="location-tag">
+                  <span class="tag-icon">📍</span>
+                  <span>{{ product.location }}</span>
+                </div>
+              </td>
+
+              <!-- 6. Status -->
+              <td class="status-cell">
+                <span class="status-badge" [ngClass]="getStatusClass(product.status)">
+                  <span class="status-dot"></span>
+                  <span>{{ product.status }}</span>
+                </span>
+              </td>
+
+              <!-- 7. Sub-SKUs Variant Count Badge -->
+              <td class="variants-cell">
+                <span class="variants-count-badge">
+                  {{ product.subSkus.length }} Variants
                 </span>
               </td>
             </tr>
 
-            <!-- Expanded Sub SKU Row -->
+            <!-- Expanded Sub-SKU Variants Row (Child Entities) -->
             @if (product.isExpanded) {
-              <tr class="bg-[#141414]">
-                <td colspan="4" class="p-0 border-b border-white/10">
-                  <div class="p-3 sm:p-5 shadow-[inset_0_4px_12px_rgba(0,0,0,0.6)]">
-                    <div class="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-2.5 sm:gap-4">
+              <tr class="nested-row">
+                <td colspan="8">
+                  <div class="sub-sku-panel">
+                    <!-- Normalization Info Banner -->
+                    <div class="panel-header-banner">
+                      <div class="banner-title">
+                        <span>Variants for {{ product.mainSku }}</span>
+                      </div>
+                      <div class="banner-inherited-tags">
+                        <span class="inherited-item">
+                          <span>Root Supplier:</span>
+                          <span class="inherited-val">{{ product.supplier }}</span>
+                        </span>
+                        <span class="inherited-item">
+                          <span>Primary Location:</span>
+                          <span class="inherited-val">{{ product.location }}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- SubSku Variant Cards Grid -->
+                    <div class="sub-sku-grid">
                       @for (sub of product.subSkus; track sub.id) {
-                        <div class="bg-[#222222] border border-white/10 rounded-lg p-3 flex gap-3.5 items-center transition-all hover:-translate-y-0.5 hover:border-white/25">
-                          <div class="w-12 h-12 sm:w-[58px] sm:h-[58px] rounded-md overflow-hidden bg-[#111111] border border-white/10 shrink-0">
-                            <img [src]="sub.imageUrl || 'assets/placeholder.png'" [alt]="sub.subSku" class="w-full h-full object-cover" />
+                        <div class="sub-sku-card">
+                          <!-- Image Thumbnail -->
+                          <div class="image-box">
+                            @if (sub.imageUrl) {
+                              <img [src]="sub.imageUrl" [alt]="sub.subSku" class="product-img" />
+                            } @else {
+                              <div class="placeholder-img">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                  <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                              </div>
+                            }
                           </div>
-                          <div class="grow text-xs">
-                            <div class="mb-1.5">
-                              <span class="font-bold text-white text-[0.85rem] break-all">{{ sub.subSku }}</span>
+
+                          <!-- SubSku Details -->
+                          <div class="card-details">
+                            <div class="card-header-line">
+                              <!-- SubSku Code -->
+                              <span class="sub-sku-code">{{ sub.subSku }}</span>
+                              <!-- Variant Status -->
+                              @if (sub.status) {
+                                <span class="status-badge" [ngClass]="getStatusClass(sub.status)">
+                                  <span class="status-dot"></span>
+                                  <span>{{ sub.status }}</span>
+                                </span>
+                              }
                             </div>
-                            <div class="flex justify-between mb-0.5">
-                              <span class="text-neutral-400 text-[0.75rem]">Location</span>
-                              <span class="text-neutral-200 font-semibold text-[0.75rem]">{{ sub.location || 'N/A' }}</span>
+
+                            <!-- Variant Size (Required Field) -->
+                            <div class="size-container">
+                              <span class="size-pill">
+                                <span>Size:</span>
+                                <strong>{{ sub.size }}</strong>
+                              </span>
                             </div>
-                            <div class="flex justify-between mb-0.5">
-                              <span class="text-neutral-400 text-[0.75rem]">Supplier</span>
-                              <span class="text-neutral-200 font-semibold text-[0.75rem]">{{ sub.supplierName || 'N/A' }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                              <span class="text-neutral-400 text-[0.75rem]">Date</span>
-                              <span class="text-neutral-200 font-semibold text-[0.75rem]">{{ sub.createdDate || 'N/A' }}</span>
+
+                            <!-- Variant Info Grid -->
+                            <div class="detail-table">
+                              @if (sub.description) {
+                                <div class="detail-line">
+                                  <span class="d-label">Spec / Note</span>
+                                  <span class="d-val" [title]="sub.description">{{ sub.description }}</span>
+                                </div>
+                              }
+                              <div class="detail-line">
+                                <span class="d-label">Date Added</span>
+                                <span class="d-val">{{ sub.Date_d_m_y || product.Date_d_m_y }}</span>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -109,13 +287,33 @@
             }
           } @empty {
             @if (!isLoading()) {
-              <tr>
-                <td colspan="4" class="text-center p-12 text-neutral-500">No product records found.</td>
+              <tr class="empty-row">
+                <td colspan="8">
+                  <div class="empty-content">
+                    <div class="empty-icon">🔍</div>
+                    <div class="empty-title">No matching products found</div>
+                    <div class="empty-sub">
+                      Try adjusting your search criteria or resetting filters to view all inventory records.
+                    </div>
+                    @if (searchQuery() || statusFilter() !== 'ALL') {
+                      <button class="btn btn-secondary" (click)="clearSearch(); setStatusFilter('ALL')">
+                        Reset Filters
+                      </button>
+                    }
+                  </div>
+                </td>
               </tr>
             }
           }
         </tbody>
       </table>
     </div>
-  </div>
+  </main>
+
+  <!-- Copied SKU Toast Notification -->
+  @if (copiedSku()) {
+    <div class="toast-notice">
+      <span>Copied SKU <strong>{{ copiedSku() }}</strong> to clipboard!</span>
+    </div>
+  }
 </div>

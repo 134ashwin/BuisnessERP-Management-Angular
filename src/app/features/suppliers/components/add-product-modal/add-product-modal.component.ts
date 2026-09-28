@@ -1,4 +1,5 @@
 /**
+ * Add Products Work Is done 
  * PURPOSE / PROBLEM SOLVED: Provides a Netflix-styled modal component with client-side validation, ESC/backdrop close handlers, and API submission trigger for adding new products.
  * NAVBAR PAGE & DATA DESTINATION: Opens on the 'Suppliers' and 'Supplier Products' navbar pages; submits form data to SupplierService.
  */

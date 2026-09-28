@@ -26,10 +26,10 @@ export const routes: Routes = [
          path: 'products',
         loadComponent: () => import('./features/products/pages/products.component').then(m => m.ProductsComponent)
       },
-      {
-        path: 'suppliers',
-        loadComponent: () => import('./features/suppliers/pages/suppliers.component').then(m => m.SuppliersComponent)
-      },
+      // {
+      //   path: 'suppliers',
+      //   loadComponent: () => import('./features/suppliers/pages/suppliers.component').then(m => m.SuppliersComponent)
+      // },
       {
         path: 'supplier-products',
         loadComponent: () => import('./features/suppliers/pages/suppliers.component').then(m => m.SuppliersComponent)

@@ -36,7 +36,7 @@ export class DashboardComponent {
     { label: 'Sales', icon: 'fa-chart-line', route: '/dashboard/sales' },
     { label: 'Customers', icon: 'fa-user-friends', route: '/dashboard/customers' },
     { label: 'Supplier Products', icon: 'fa-truck-loading', route: '/dashboard/supplier-products' },
-    { label: 'Suppliers', icon: 'fa-store', route: '/dashboard/suppliers' },
+    //{ label: 'Suppliers', icon: 'fa-store', route: '/dashboard/suppliers' },
     { label: 'Returns', icon: 'fa-undo', route: '/dashboard/returns' },
     { label: 'History', icon: 'fa-history', route: '/dashboard/history' },
     { label: 'Production Unit', icon: 'fa-history', route: '/dashboard/history' },

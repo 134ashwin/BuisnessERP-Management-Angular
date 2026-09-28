@@ -1,0 +1,196 @@
+<!-- 
+  PURPOSE / PROBLEM SOLVED: Renders the dark Netflix-themed modal dialog with floating inputs, status pills, and character counters for product entry.
+  NAVBAR PAGE & DATA DESTINATION: Embedded modal form on the 'Suppliers' & 'Supplier Products' navbar pages (/dashboard/suppliers).
+-->
+
+<div 
+  *ngIf="isOpen" 
+  class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md transition-opacity duration-300"
+  (click)="onBackdropClick($event)"
+>
+  <!-- Modal Surface Container -->
+  <div 
+    class="netflix-modal-surface relative w-full max-w-2xl bg-[#181818] border border-neutral-800 rounded-xl shadow-2xl overflow-hidden text-white transform transition-all duration-300 animate-slide-up"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Modal Header -->
+    <div class="px-6 py-5 border-b border-neutral-800/80 flex items-center justify-between bg-[#1f1f1f]/50">
+      <div class="flex items-center gap-3">
+        <div class="w-2.5 h-6 bg-[#E50914] rounded-full"></div>
+        <h2 class="text-xl font-bold text-white tracking-wide">Add New Product</h2>
+      </div>
+      <button 
+        type="button" 
+        class="w-9 h-9 flex items-center justify-center rounded-full text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors focus:outline-none"
+        (click)="onCloseModal()"
+        [disabled]="isSubmitting()"
+        aria-label="Close modal"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Form Content -->
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+      
+      <!-- Two-Column Grid for Primary Fields -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        
+        <!-- 1. Supplier Name (Searchable Input / Autocomplete) -->
+        <div class="relative">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+            Supplier Name <span class="text-[#E50914]">*</span>
+          </label>
+          <div class="relative">
+            <input 
+              type="text" 
+              formControlName="supplierName" 
+              placeholder="e.g. Apex Global Logistics"
+              (input)="onSupplierInput($event)"
+              (focus)="isSupplierDropdownOpen.set(true)"
+              class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
+              [ngClass]="{'border-red-500/80': productForm.get('supplierName')?.invalid && productForm.get('supplierName')?.touched}"
+            />
+            <div *ngIf="isSupplierDropdownOpen() && filteredSuppliers().length > 0" class="absolute z-20 left-0 right-0 mt-1 bg-[#222222] border border-neutral-700 rounded-lg shadow-xl max-h-40 overflow-y-auto">
+              <div 
+                *ngFor="let option of filteredSuppliers()" 
+                (click)="selectSupplier(option)"
+                class="px-3.5 py-2 text-xs text-neutral-300 hover:bg-[#333333] hover:text-white cursor-pointer transition-colors"
+              >
+                {{ option }}
+              </div>
+            </div>
+          </div>
+          <p *ngIf="productForm.get('supplierName')?.invalid && productForm.get('supplierName')?.touched" class="mt-1 text-xs text-red-400">
+            Supplier Name is required.
+          </p>
+        </div>
+
+        <!-- 2. Main SKU (Monospaced, Auto-Uppercase) -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+            Main SKU <span class="text-[#E50914]">*</span>
+          </label>
+          <input 
+            type="text" 
+            formControlName="mainSku" 
+            placeholder="e.g. MSKU-9920"
+            (input)="onSkuInput($event)"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white font-mono text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all uppercase placeholder:text-neutral-500 tracking-wider"
+            [ngClass]="{'border-red-500/80': productForm.get('mainSku')?.invalid && productForm.get('mainSku')?.touched}"
+          />
+          <p *ngIf="productForm.get('mainSku')?.invalid && productForm.get('mainSku')?.touched" class="mt-1 text-xs text-red-400">
+            Valid Main SKU is required (e.g. MSKU-8820).
+          </p>
+        </div>
+
+        <!-- 3. Size (Optional) -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+            Size Variant <span class="text-neutral-500 font-normal">(Optional)</span>
+          </label>
+          <input 
+            type="text" 
+            formControlName="size" 
+            placeholder="e.g. Medium (M) or EU 42"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
+          />
+        </div>
+
+        <!-- 4. Location (Warehouse / Bin) -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+            Location <span class="text-[#E50914]">*</span>
+          </label>
+          <input 
+            type="text" 
+            formControlName="location" 
+            placeholder="e.g. Warehouse A · Bay 14"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
+            [ngClass]="{'border-red-500/80': productForm.get('location')?.invalid && productForm.get('location')?.touched}"
+          />
+          <p *ngIf="productForm.get('location')?.invalid && productForm.get('location')?.touched" class="mt-1 text-xs text-red-400">
+            Location is required.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- 5. Status Pill Toggle -->
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+          Product Status <span class="text-[#E50914]">*</span>
+        </label>
+        <div class="inline-flex items-center p-1 bg-[#222222] border border-neutral-700 rounded-lg gap-1">
+          <button 
+            type="button" 
+            (click)="setStatus('Active')"
+            class="px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+            [ngClass]="productForm.get('status')?.value === 'Active' ? 'bg-emerald-600/90 text-white font-semibold shadow-lg' : 'text-neutral-400 hover:text-white'"
+          >
+            <span class="w-2 h-2 rounded-full" [ngClass]="productForm.get('status')?.value === 'Active' ? 'bg-emerald-300 animate-pulse' : 'bg-neutral-500'"></span>
+            Active
+          </button>
+          
+          <button 
+            type="button" 
+            (click)="setStatus('Inactive')"
+            class="px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+            [ngClass]="productForm.get('status')?.value === 'Inactive' ? 'bg-neutral-700 text-white font-semibold shadow-lg' : 'text-neutral-400 hover:text-white'"
+          >
+            <span class="w-2 h-2 rounded-full" [ngClass]="productForm.get('status')?.value === 'Inactive' ? 'bg-neutral-300' : 'bg-neutral-500'"></span>
+            Inactive
+          </button>
+        </div>
+      </div>
+
+      <!-- 6. Description (Full width textarea with character counter) -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400">
+            Description
+          </label>
+          <span class="text-xs" [ngClass]="descriptionLength >= maxDescriptionLength ? 'text-red-400 font-semibold' : 'text-neutral-500'">
+            {{ descriptionLength }} / {{ maxDescriptionLength }}
+          </span>
+        </div>
+        <textarea 
+          formControlName="description" 
+          rows="3" 
+          [attr.maxlength]="maxDescriptionLength"
+          placeholder="Provide product details, specifications, or handling instructions..."
+          class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg p-3 outline-none transition-all placeholder:text-neutral-500 resize-none"
+        ></textarea>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="pt-4 border-t border-neutral-800/80 flex items-center justify-end gap-3">
+        <button 
+          type="button" 
+          (click)="onCloseModal()"
+          [disabled]="isSubmitting()"
+          class="px-5 py-2.5 text-xs font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors focus:outline-none"
+        >
+          Cancel
+        </button>
+
+        <button 
+          type="submit" 
+          [disabled]="isSubmitting()"
+          class="btn-netflix-primary relative inline-flex items-center justify-center px-6 py-2.5 bg-[#E50914] hover:bg-[#F40612] text-white font-bold text-sm rounded-lg transition-all duration-200 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-red-900/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        >
+          <!-- Loading Spinner -->
+          <svg *ngIf="isSubmitting()" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+
+          <span>{{ isSubmitting() ? 'Saving Product...' : 'Add Product' }}</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

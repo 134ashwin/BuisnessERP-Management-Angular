@@ -1,0 +1,218 @@
+<!-- 
+  PURPOSE / PROBLEM SOLVED: Displays the Netflix dark-themed vendor dashboard, stats cards, product inventory table, "+ Add Product" header action, and toast notifications.
+  NAVBAR PAGE & DATA DESTINATION: Represents the view for 'Suppliers' and 'Supplier Products' navbar items (/dashboard/suppliers, /dashboard/supplier-products).
+-->
+
+<div class="min-h-screen bg-[#141414] text-white p-6 font-sans">
+  
+  <!-- Toast Notification -->
+  <div 
+    *ngIf="toastMessage()" 
+    class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1e1e1e] border-l-4 border-[#E50914] text-white px-5 py-3.5 rounded-lg shadow-2xl animate-fade-in"
+  >
+    <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+    <span class="text-sm font-medium">{{ toastMessage() }}</span>
+    <button (click)="toastMessage.set(null)" class="ml-2 text-neutral-400 hover:text-white">✕</button>
+  </div>
+
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 mb-8 border-b border-neutral-800 gap-4">
+    <div>
+      <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#E50914] mb-1">
+        <span>Vendor Management Hub</span>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-white">Suppliers & Products</h1>
+      <p class="text-xs text-[#AAAAAA] mt-1">Manage vendor profiles, catalog items, and warehouse product listings.</p>
+    </div>
+
+    <!-- Primary Header Action Button "+ Add Product" -->
+    <div>
+      <button 
+        type="button" 
+        (click)="openAddProductModal()"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-[#E50914] hover:bg-[#F40612] text-white font-bold text-sm rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg shadow-red-950/40 cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#141414]"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>+ Add Product</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Key Metrics Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+    <div class="bg-[#181818] border border-neutral-800 rounded-xl p-5 relative overflow-hidden group hover:border-neutral-700 transition-colors">
+      <div class="w-1.5 h-full bg-[#E50914] absolute left-0 top-0"></div>
+      <div class="pl-2">
+        <span class="text-xs font-semibold uppercase tracking-wider text-[#AAAAAA]">Total Suppliers</span>
+        <div class="text-2xl font-black text-white mt-1">{{ totalSuppliersCount() }}</div>
+        <div class="text-xs text-emerald-400 mt-1 font-medium">● {{ activeSuppliersCount() }} Active Vendors</div>
+      </div>
+    </div>
+
+    <div class="bg-[#181818] border border-neutral-800 rounded-xl p-5 relative overflow-hidden group hover:border-neutral-700 transition-colors">
+      <div class="w-1.5 h-full bg-blue-500 absolute left-0 top-0"></div>
+      <div class="pl-2">
+        <span class="text-xs font-semibold uppercase tracking-wider text-[#AAAAAA]">Total Catalog Products</span>
+        <div class="text-2xl font-black text-white mt-1">{{ totalProductsCount() }}</div>
+        <div class="text-xs text-neutral-400 mt-1 font-medium">Across all partner warehouses</div>
+      </div>
+    </div>
+
+    <div class="bg-[#181818] border border-neutral-800 rounded-xl p-5 relative overflow-hidden group hover:border-neutral-700 transition-colors">
+      <div class="w-1.5 h-full bg-emerald-500 absolute left-0 top-0"></div>
+      <div class="pl-2">
+        <span class="text-xs font-semibold uppercase tracking-wider text-[#AAAAAA]">System Status</span>
+        <div class="text-2xl font-black text-emerald-400 mt-1">Operational</div>
+        <div class="text-xs text-neutral-400 mt-1 font-medium">API ready for POST /api/products</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Toolbar -->
+  <div class="bg-[#181818] border border-neutral-800 rounded-xl p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="relative flex-1 max-w-md">
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+      <input 
+        type="text" 
+        [ngModel]="searchQuery()" 
+        (input)="onSearch($event)" 
+        placeholder="Search product SKU, supplier, location..." 
+        class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg pl-10 pr-4 py-2 border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] outline-none transition-all"
+      />
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span class="text-xs text-[#AAAAAA]">Showing {{ filteredProducts().length }} items</span>
+    </div>
+  </div>
+
+  <!-- Supplier Catalog Products Table -->
+  <div class="bg-[#181818] border border-neutral-800 rounded-xl shadow-2xl overflow-hidden mb-10">
+    <div class="px-6 py-4 border-b border-neutral-800 flex items-center justify-between">
+      <h2 class="text-base font-bold text-white tracking-wide">Supplier Product Inventory</h2>
+      <button 
+        (click)="openAddProductModal()" 
+        class="text-xs font-semibold text-[#E50914] hover:text-[#F40612] hover:underline"
+      >
+        + Quick Add
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-neutral-300">
+        <thead class="bg-[#101010] text-xs uppercase tracking-wider text-neutral-400 border-b border-neutral-800">
+          <tr>
+            <th class="py-3.5 px-6 font-semibold">Main SKU</th>
+            <th class="py-3.5 px-6 font-semibold">Supplier Name</th>
+            <th class="py-3.5 px-6 font-semibold">Location</th>
+            <th class="py-3.5 px-6 font-semibold">Size</th>
+            <th class="py-3.5 px-6 font-semibold">Status</th>
+            <th class="py-3.5 px-6 font-semibold">Description</th>
+            <th class="py-3.5 px-6 font-semibold text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-neutral-800/60">
+          <tr *ngFor="let item of filteredProducts()" class="hover:bg-[#202020] transition-colors group">
+            <td class="py-4 px-6 font-mono text-white font-semibold tracking-wider">
+              {{ item.mainSku }}
+            </td>
+            <td class="py-4 px-6 text-white font-medium">
+              {{ item.supplierName }}
+            </td>
+            <td class="py-4 px-6 text-neutral-300">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#242424] text-xs text-neutral-300 border border-neutral-700">
+                📍 {{ item.location }}
+              </span>
+            </td>
+            <td class="py-4 px-6 text-neutral-400 text-xs">
+              {{ item.size || '—' }}
+            </td>
+            <td class="py-4 px-6">
+              <span 
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                [ngClass]="item.status === 'Active' ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/60' : 'bg-neutral-800 text-neutral-400 border border-neutral-700'"
+              >
+                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="item.status === 'Active' ? 'bg-emerald-400' : 'bg-neutral-500'"></span>
+                {{ item.status }}
+              </span>
+            </td>
+            <td class="py-4 px-6 text-neutral-400 text-xs max-w-xs truncate" [title]="item.description || ''">
+              {{ item.description || 'No description provided' }}
+            </td>
+            <td class="py-4 px-6 text-right">
+              <button 
+                (click)="openAddProductModal(item.supplierName)"
+                class="px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#E50914] text-neutral-300 hover:text-white rounded text-xs font-medium transition-all duration-150"
+              >
+                + Add SKU
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredProducts().length === 0">
+            <td colspan="7" class="py-12 text-center text-neutral-500 text-sm">
+              No products found matching your search.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Supplier Vendors Overview Grid -->
+  <div class="mb-10">
+    <h2 class="text-lg font-bold text-white mb-4 tracking-wide">Partner Suppliers Overview</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div 
+        *ngFor="let s of suppliers()" 
+        class="bg-[#181818] border border-neutral-800 rounded-xl p-5 hover:border-neutral-700 transition-all duration-200 flex flex-col justify-between group"
+      >
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#262626] text-[#E50914] border border-neutral-700">
+              {{ s.code }}
+            </span>
+            <span 
+              class="text-xs px-2.5 py-0.5 rounded-full font-medium"
+              [ngClass]="s.status === 'Active' ? 'bg-emerald-950 text-emerald-400' : 'bg-neutral-800 text-neutral-400'"
+            >
+              {{ s.status }}
+            </span>
+          </div>
+          <h3 class="text-base font-bold text-white group-hover:text-[#E50914] transition-colors">{{ s.name }}</h3>
+          <p class="text-xs text-neutral-400 mt-1">📍 {{ s.location }}</p>
+          <p class="text-xs text-neutral-500 mt-0.5">Category: {{ s.category }}</p>
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-neutral-800/80 flex items-center justify-between">
+          <span class="text-xs text-neutral-400">{{ s.totalProducts }} items cataloged</span>
+          <button 
+            (click)="openAddProductModal(s.name)"
+            class="px-3 py-1.5 text-xs font-semibold text-white bg-[#E50914] hover:bg-[#F40612] rounded transition-transform transform hover:scale-105"
+          >
+            + Add Product
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Product Modal Component Instance -->
+  <app-add-product-modal 
+    [isOpen]="isModalOpen()"
+    [initialSupplierName]="selectedSupplierName()"
+    (close)="closeModal()"
+    (productCreated)="onProductCreated($event)"
+  ></app-add-product-modal>
+
+</div>

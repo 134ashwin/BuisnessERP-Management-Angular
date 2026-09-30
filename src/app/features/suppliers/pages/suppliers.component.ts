@@ -36,13 +36,13 @@ export class SuppliersComponent implements OnInit {
     const q = this.searchQuery().toLowerCase().trim();
     const list = this.products();
     if (!q) return list;
-    return list.filter(p => 
+    return list.filter(p =>
       p.mainSku.toLowerCase().includes(q) ||
       p.supplierName.toLowerCase().includes(q) ||
-      p.location.toLowerCase().includes(q) ||
+      p.locationCode.toLowerCase().includes(q) ||
       (p.description && p.description.toLowerCase().includes(q)) ||
-      p.status.toLowerCase().includes(q) ||
-      (p.size && p.size.toLowerCase().includes(q))
+      (p.status ? 'active' : 'inactive').includes(q) ||
+      (p.Qty && p.Qty.toLowerCase().includes(q))
     );
   });
 
@@ -66,6 +66,7 @@ export class SuppliersComponent implements OnInit {
 
   onProductCreated(sku: string): void {
     this.refreshData();
+
     this.showToast(`Product created successfully (${sku})`);
   }
 

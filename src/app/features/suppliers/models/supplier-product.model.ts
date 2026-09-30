@@ -4,12 +4,17 @@
  */
 
 export interface SupplierProductFormData {
-  supplierName: string;
+  Sku: string;
   mainSku: string;
-  size?: string;
-  location: string;
-  status: 'Active' | 'Inactive';
   description?: string;
+  IsActive: boolean;
+  SubSkuCode?: string;
+  Qty?: string;
+  ImageUrl?: string;
+  supplierName: string;
+  GSTNumber: string;
+  locationCode: string;
+  status : boolean;
 }
 
 export interface SupplierProduct extends SupplierProductFormData {

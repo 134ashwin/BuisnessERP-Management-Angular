@@ -115,7 +115,7 @@
             <th class="py-3.5 px-6 font-semibold">Main SKU</th>
             <th class="py-3.5 px-6 font-semibold">Supplier Name</th>
             <th class="py-3.5 px-6 font-semibold">Location</th>
-            <th class="py-3.5 px-6 font-semibold">Size</th>
+            <th class="py-3.5 px-6 font-semibold">Qty</th>
             <th class="py-3.5 px-6 font-semibold">Status</th>
             <th class="py-3.5 px-6 font-semibold">Description</th>
             <th class="py-3.5 px-6 font-semibold text-right">Actions</th>
@@ -131,18 +131,18 @@
             </td>
             <td class="py-4 px-6 text-neutral-300">
               <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#242424] text-xs text-neutral-300 border border-neutral-700">
-                📍 {{ item.location }}
+                📍 {{ item.locationCode }}
               </span>
             </td>
             <td class="py-4 px-6 text-neutral-400 text-xs">
-              {{ item.size || '—' }}
+              {{ item.Qty || '—' }}
             </td>
             <td class="py-4 px-6">
               <span 
                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
-                [ngClass]="item.status === 'Active' ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/60' : 'bg-neutral-800 text-neutral-400 border border-neutral-700'"
+                [ngClass]="item.status ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/60' : 'bg-neutral-800 text-neutral-400 border border-neutral-700'"
               >
-                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="item.status === 'Active' ? 'bg-emerald-400' : 'bg-neutral-500'"></span>
+                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="item.status ? 'bg-emerald-400' : 'bg-neutral-500'"></span>
                 {{ item.status }}
               </span>
             </td>

@@ -8,7 +8,6 @@ import { Component, EventEmitter, HostListener, Input, Output, OnInit, inject, s
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SupplierService } from '../../services/supplier.service';
-import { SupplierProductFormData } from '../../models/supplier-product.model';
 
 @Component({
   selector: 'app-add-product-modal',
@@ -29,7 +28,7 @@ export class AddProductModalComponent implements OnInit {
   productForm!: FormGroup;
   isSubmitting = signal(false);
   maxDescriptionLength = 250;
-  
+
   supplierOptions = signal<string[]>([
     'Apex Global Logistics',
     'Nordic Fabricators GmbH',
@@ -50,12 +49,16 @@ export class AddProductModalComponent implements OnInit {
 
   initForm(): void {
     this.productForm = this.fb.group({
-      supplierName: [this.initialSupplierName || '', [Validators.required, Validators.minLength(2)]],
+      sku: ['', [Validators.required]],
       mainSku: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9\-_]{3,20}$/)]],
-      size: [''],
-      location: ['', [Validators.required, Validators.minLength(2)]],
-      status: ['Active', [Validators.required]],
-      description: ['', [Validators.maxLength(this.maxDescriptionLength)]]
+      description: ['', [Validators.maxLength(this.maxDescriptionLength)]],
+      isActive: [true],
+      subSkuCode: [''],
+      qty: [''],
+      imageUrl: [''],
+      supplierName: [this.initialSupplierName || '', [Validators.required, Validators.minLength(2)]],
+      gstNumber: ['', [Validators.required]],
+      locationCode: ['', [Validators.required]]
     });
   }
 
@@ -97,27 +100,28 @@ export class AddProductModalComponent implements OnInit {
     this.isSupplierDropdownOpen.set(false);
   }
 
-  setStatus(status: 'Active' | 'Inactive'): void {
-    this.productForm.get('status')?.setValue(status);
-  }
-
   get descriptionLength(): number {
     return this.productForm.get('description')?.value?.length || 0;
   }
 
   onSubmit(): void {
+    console.log('Form Status:', this.productForm.status);
+    console.log('Form Errors:', this.productForm.errors);
     if (this.productForm.invalid || this.isSubmitting()) {
       this.productForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting.set(true);
-    const formData: SupplierProductFormData = this.productForm.value;
 
-    this.supplierService.handleCreateProduct(formData).subscribe({
+    // Extract raw form value explicitly guaranteeing all keys match the form controls without renaming
+    const rawValue = this.productForm.getRawValue();
+    console.log('1. Modal Form Raw Value:', rawValue);
+
+    this.supplierService.handleCreateProduct(rawValue).subscribe({
       next: (createdProduct) => {
         this.isSubmitting.set(false);
-        this.productForm.reset({ status: 'Active' });
+        this.productForm.reset({ isActive: true });
         this.productCreated.emit(createdProduct.mainSku);
         this.close.emit();
       },

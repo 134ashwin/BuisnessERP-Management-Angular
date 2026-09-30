@@ -38,7 +38,7 @@
       <!-- Two-Column Grid for Primary Fields -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         
-        <!-- 1. Supplier Name (Searchable Input / Autocomplete) -->
+        <!-- Supplier Name (Searchable Input / Autocomplete) -->
         <div class="relative">
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             Supplier Name <span class="text-[#E50914]">*</span>
@@ -68,7 +68,41 @@
           </p>
         </div>
 
-        <!-- 2. Main SKU (Monospaced, Auto-Uppercase) -->
+        <!-- GST Number -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+            GST Number <span class="text-[#E50914]">*</span>
+          </label>
+          <input 
+            type="text" 
+            formControlName="gstNumber" 
+            placeholder="e.g. 29ABCDE1234F1Z5"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500 tracking-wider uppercase"
+            [ngClass]="{'border-red-500/80': productForm.get('gstNumber')?.invalid && productForm.get('gstNumber')?.touched}"
+          />
+          <p *ngIf="productForm.get('gstNumber')?.invalid && productForm.get('gstNumber')?.touched" class="mt-1 text-xs text-red-400">
+            GST Number is required.
+          </p>
+        </div>
+
+        <!-- SKU -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+            SKU <span class="text-[#E50914]">*</span>
+          </label>
+          <input 
+            type="text" 
+            formControlName="sku" 
+            placeholder="e.g. SKU-1002"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white font-mono text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all uppercase placeholder:text-neutral-500 tracking-wider"
+            [ngClass]="{'border-red-500/80': productForm.get('sku')?.invalid && productForm.get('sku')?.touched}"
+          />
+          <p *ngIf="productForm.get('sku')?.invalid && productForm.get('sku')?.touched" class="mt-1 text-xs text-red-400">
+            SKU is required.
+          </p>
+        </div>
+
+        <!-- Main SKU -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             Main SKU <span class="text-[#E50914]">*</span>
@@ -85,72 +119,83 @@
             Valid Main SKU is required (e.g. MSKU-8820).
           </p>
         </div>
-
-        <!-- 3. Size (Optional) -->
+        
+        <!-- Sub SKU Code -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
-            Size  <span class="text-neutral-500 font-normal">(Optional)</span>
+            Sub SKU Code <span class="text-neutral-500 font-normal">(Optional)</span>
           </label>
           <input 
             type="text" 
-            formControlName="size" 
-            placeholder="e.g. Medium (M) or EU 42"
-            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
+            formControlName="subSkuCode" 
+            placeholder="e.g. SUB-01"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white font-mono text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all uppercase placeholder:text-neutral-500 tracking-wider"
           />
         </div>
 
-        <!-- 4. Location (Warehouse / Bin) -->
+        <!-- Location Code -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
-            Location <span class="text-[#E50914]">*</span>
+            Location Code <span class="text-[#E50914]">*</span>
           </label>
           <input 
             type="text" 
-            formControlName="location" 
+            formControlName="locationCode" 
             placeholder="e.g. Warehouse A · Bay 14"
             class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
-            [ngClass]="{'border-red-500/80': productForm.get('location')?.invalid && productForm.get('location')?.touched}"
+            [ngClass]="{'border-red-500/80': productForm.get('locationCode')?.invalid && productForm.get('locationCode')?.touched}"
           />
-          <p *ngIf="productForm.get('location')?.invalid && productForm.get('location')?.touched" class="mt-1 text-xs text-red-400">
-            Location is required.
+          <p *ngIf="productForm.get('locationCode')?.invalid && productForm.get('locationCode')?.touched" class="mt-1 text-xs text-red-400">
+            Location Code is required.
           </p>
         </div>
 
-      </div>
+        <!-- Qty -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+            Qty <span class="text-neutral-500 font-normal">(Optional)</span>
+          </label>
+          <input 
+            type="text" 
+            formControlName="qty" 
+            placeholder="e.g. 100"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
+          />
+        </div>
 
-      <!-- 5. Status Pill Toggle -->
-      <div>
-        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
-          Product Status <span class="text-[#E50914]">*</span>
-        </label>
-        <div class="inline-flex items-center p-1 bg-[#222222] border border-neutral-700 rounded-lg gap-1">
-          <button 
-            type="button" 
-            (click)="setStatus('Active')"
-            class="px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
-            [ngClass]="productForm.get('status')?.value === 'Active' ? 'bg-emerald-600/90 text-white font-semibold shadow-lg' : 'text-neutral-400 hover:text-white'"
-          >
-            <span class="w-2 h-2 rounded-full" [ngClass]="productForm.get('status')?.value === 'Active' ? 'bg-emerald-300 animate-pulse' : 'bg-neutral-500'"></span>
-            Active
-          </button>
-          
-          <button 
-            type="button" 
-            (click)="setStatus('Inactive')"
-            class="px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
-            [ngClass]="productForm.get('status')?.value === 'Inactive' ? 'bg-neutral-700 text-white font-semibold shadow-lg' : 'text-neutral-400 hover:text-white'"
-          >
-            <span class="w-2 h-2 rounded-full" [ngClass]="productForm.get('status')?.value === 'Inactive' ? 'bg-neutral-300' : 'bg-neutral-500'"></span>
-            Inactive
-          </button>
+        <!-- Image URL -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+            Image URL <span class="text-neutral-500 font-normal">(Optional)</span>
+          </label>
+          <input 
+            type="text" 
+            formControlName="imageUrl" 
+            placeholder="e.g. https://example.com/img.jpg"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
+          />
         </div>
       </div>
 
-      <!-- 6. Description (Full width textarea with character counter) -->
+      <!-- Is Active Toggle -->
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+          Is Active <span class="text-[#E50914]">*</span>
+        </label>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" formControlName="isActive" class="sr-only peer">
+          <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E50914]"></div>
+          <span class="ml-3 text-sm font-medium transition-colors" [ngClass]="productForm.get('isActive')?.value ? 'text-emerald-400 font-bold' : 'text-neutral-400'">
+            {{ productForm.get('isActive')?.value ? 'Active' : 'Inactive' }}
+          </span>
+        </label>
+      </div>
+
+      <!-- Description -->
       <div>
         <div class="flex items-center justify-between mb-1.5">
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400">
-            Description
+            Description <span class="text-neutral-500 font-normal">(Optional)</span>
           </label>
           <span class="text-xs" [ngClass]="descriptionLength >= maxDescriptionLength ? 'text-red-400 font-semibold' : 'text-neutral-500'">
             {{ descriptionLength }} / {{ maxDescriptionLength }}

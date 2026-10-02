@@ -1,9 +1,3 @@
-/**
- * Add Products Work Is done 
- * PURPOSE / PROBLEM SOLVED: Provides a Netflix-styled modal component with client-side validation, ESC/backdrop close handlers, and API submission trigger for adding new products.
- * NAVBAR PAGE & DATA DESTINATION: Opens on the 'Suppliers' and 'Supplier Products' navbar pages; submits form data to SupplierService.
- */
-
 import { Component, EventEmitter, HostListener, Input, Output, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -27,24 +21,43 @@ export class AddProductModalComponent implements OnInit {
 
   productForm!: FormGroup;
   isSubmitting = signal(false);
+  isLoadingSuppliers = signal(false); // Indicates active HTTP fetch
   maxDescriptionLength = 250;
 
-  supplierOptions = signal<string[]>([
-    'Apex Global Logistics',
-    'Nordic Fabricators GmbH',
-    'Zenith Tech Hardware Ltd',
-    'Solaria Optics Corp',
-    'Titan Industrial Systems',
-    'Vanguard Supply Chain Co.',
-    'Apex Industrial Materials'
-  ]);
-
+  // Signal starts empty - will be populated from DB call
+  supplierOptions = signal<string[]>([]);
   filteredSuppliers = signal<string[]>([]);
   isSupplierDropdownOpen = signal(false);
 
   ngOnInit(): void {
     this.initForm();
-    this.filteredSuppliers.set(this.supplierOptions());
+    this.loadSuppliersFromDb(); // Fetch dynamic supplier data on component init
+  }
+
+  /**
+   * Fetches suppliers from the database via SupplierService
+   * and updates the reactive signals without disturbing existing functionality.
+   */
+  loadSuppliersFromDb(): void {
+    this.isLoadingSuppliers.set(true);
+    
+    // Calls getSupplierNames() which returns string[]
+    this.supplierService.getSupplierNames().subscribe({
+      next: (suppliers: string[]) => {
+        this.supplierOptions.set(suppliers);
+        this.filteredSuppliers.set(suppliers);
+        this.isLoadingSuppliers.set(false);
+
+        const control = this.productForm.get('supplierName');
+        if (control?.value) {
+          control.updateValueAndValidity();
+        }
+      },
+      error: (err: unknown) => {
+        console.error('Failed to load suppliers:', err);
+        this.isLoadingSuppliers.set(false);
+      }
+    });
   }
 
   initForm(): void {
@@ -56,7 +69,19 @@ export class AddProductModalComponent implements OnInit {
       subSkuCode: [''],
       qty: [''],
       imageUrl: [''],
-      supplierName: [this.initialSupplierName || '', [Validators.required, Validators.minLength(2)]],
+      supplierName: [
+        this.initialSupplierName || '',
+        [
+          Validators.required,
+          // Custom Validator: Rejects any value that is not an exact match to an existing supplier in DB
+          (control) => {
+            const val = control.value?.trim().toLowerCase();
+            if (!val) return null;
+            const exists = this.supplierOptions().some(s => s.toLowerCase() === val);
+            return exists ? null : { mustSelectExistingSupplier: true };
+          }
+        ]
+      ],
       gstNumber: ['', [Validators.required]],
       locationCode: ['', [Validators.required]]
     });
@@ -88,15 +113,20 @@ export class AddProductModalComponent implements OnInit {
     this.productForm.get('mainSku')?.setValue(upperValue, { emitEvent: false });
   }
 
+  // Filters dropdown options as user types and keeps dropdown open
   onSupplierInput(event: Event): void {
-    const query = (event.target as HTMLInputElement).value.toLowerCase();
+    const query = (event.target as HTMLInputElement).value.toLowerCase().trim();
     const filtered = this.supplierOptions().filter(s => s.toLowerCase().includes(query));
     this.filteredSuppliers.set(filtered);
     this.isSupplierDropdownOpen.set(true);
   }
 
+  // Explicitly assigns chosen supplier, updates validation, and shuts dropdown
   selectSupplier(name: string): void {
-    this.productForm.get('supplierName')?.setValue(name);
+    const control = this.productForm.get('supplierName');
+    control?.setValue(name);
+    control?.markAsTouched();
+    control?.updateValueAndValidity();
     this.isSupplierDropdownOpen.set(false);
   }
 
@@ -105,18 +135,13 @@ export class AddProductModalComponent implements OnInit {
   }
 
   onSubmit(): void {
-    console.log('Form Status:', this.productForm.status);
-    console.log('Form Errors:', this.productForm.errors);
     if (this.productForm.invalid || this.isSubmitting()) {
       this.productForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting.set(true);
-
-    // Extract raw form value explicitly guaranteeing all keys match the form controls without renaming
     const rawValue = this.productForm.getRawValue();
-    console.log('1. Modal Form Raw Value:', rawValue);
 
     this.supplierService.handleCreateProduct(rawValue).subscribe({
       next: (createdProduct) => {

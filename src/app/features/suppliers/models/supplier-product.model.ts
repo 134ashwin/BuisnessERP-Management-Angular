@@ -32,3 +32,9 @@ export interface SupplierInfo {
   status: 'Active' | 'Inactive';
   totalProducts: number;
 }
+
+export interface Supplier_Minor_Details
+{
+  name: string;
+  gstNumber : string;
+}

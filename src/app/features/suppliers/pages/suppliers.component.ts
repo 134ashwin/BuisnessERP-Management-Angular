@@ -50,9 +50,22 @@ export class SuppliersComponent implements OnInit {
     this.refreshData();
   }
 
-  refreshData(): void {
-    this.suppliers.set(this.supplierService.getSuppliers());
-    this.products.set(this.supplierService.getProducts());
+ refreshData(): void {
+    // 1. Fetch full suppliers list
+    this.supplierService.getSuppliers().subscribe({
+      next: (data: SupplierInfo[]) => {
+        this.suppliers.set(data);
+      },
+      error: (err: unknown) => console.error('Error fetching suppliers:', err)
+    });
+
+    // 2. Fetch products list
+    this.supplierService.getProducts().subscribe({
+      next: (data: SupplierProduct[]) => {
+        this.products.set(data);
+      },
+      error: (err: unknown) => console.error('Error fetching products:', err)
+    });
   }
 
   openAddProductModal(supplierName: string = ''): void {

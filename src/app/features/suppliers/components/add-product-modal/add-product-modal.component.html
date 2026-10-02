@@ -3,68 +3,88 @@
   NAVBAR PAGE & DATA DESTINATION: Embedded modal form on the 'Suppliers' & 'Supplier Products' navbar pages (/dashboard/suppliers).
 -->
 
-<div 
-  *ngIf="isOpen" 
+<div *ngIf="isOpen"
   class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md transition-opacity duration-300"
-  (click)="onBackdropClick($event)"
->
+  (click)="onBackdropClick($event)">
   <!-- Modal Surface Container -->
-  <div 
+  <div
     class="netflix-modal-surface relative w-full max-w-2xl bg-[#181818] border border-neutral-800 rounded-xl shadow-2xl overflow-hidden text-white transform transition-all duration-300 animate-slide-up"
-    (click)="$event.stopPropagation()"
-  >
+    (click)="$event.stopPropagation()">
     <!-- Modal Header -->
     <div class="px-6 py-5 border-b border-neutral-800/80 flex items-center justify-between bg-[#1f1f1f]/50">
       <div class="flex items-center gap-3">
         <div class="w-2.5 h-6 bg-[#E50914] rounded-full"></div>
         <h2 class="text-xl font-bold text-white tracking-wide">Add New Product</h2>
       </div>
-      <button 
-        type="button" 
+      <button type="button"
         class="w-9 h-9 flex items-center justify-center rounded-full text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors focus:outline-none"
-        (click)="onCloseModal()"
-        [disabled]="isSubmitting()"
-        aria-label="Close modal"
-      >
+        (click)="onCloseModal()" [disabled]="isSubmitting()" aria-label="Close modal">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="6 18L18 6M6 6l12 12" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
 
     <!-- Form Content -->
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
-      
+
       <!-- Two-Column Grid for Primary Fields -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        
-        <!-- Supplier Name (Searchable Input / Autocomplete) -->
+
+        <!-- Supplier Name (Searchable Input / Dropdown-Only Selection) -->
+
+
+        <!-- Inside add-product-modal.component.html -> Supplier Name section -->
         <div class="relative">
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             Supplier Name <span class="text-[#E50914]">*</span>
           </label>
+
           <div class="relative">
-            <input 
-              type="text" 
-              formControlName="supplierName" 
-              placeholder="e.g. Apex Global Logistics"
-              (input)="onSupplierInput($event)"
-              (focus)="isSupplierDropdownOpen.set(true)"
+            <input type="text" formControlName="supplierName"
+              [placeholder]="isLoadingSuppliers() ? 'Loading suppliers from database...' : 'Search & select existing supplier...'"
+              (input)="onSupplierInput($event)" (focus)="isSupplierDropdownOpen.set(true)"
               class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
-              [ngClass]="{'border-red-500/80': productForm.get('supplierName')?.invalid && productForm.get('supplierName')?.touched}"
-            />
-            <div *ngIf="isSupplierDropdownOpen() && filteredSuppliers().length > 0" class="absolute z-20 left-0 right-0 mt-1 bg-[#222222] border border-neutral-700 rounded-lg shadow-xl max-h-40 overflow-y-auto">
-              <div 
-                *ngFor="let option of filteredSuppliers()" 
-                (click)="selectSupplier(option)"
-                class="px-3.5 py-2 text-xs text-neutral-300 hover:bg-[#333333] hover:text-white cursor-pointer transition-colors"
-              >
-                {{ option }}
+              [ngClass]="{'border-red-500/80': productForm.get('supplierName')?.invalid && productForm.get('supplierName')?.touched}" />
+
+            <!-- Dynamic Loading Indicator -->
+            <div *ngIf="isLoadingSuppliers()" class="absolute right-3 top-3">
+              <svg class="animate-spin h-4 w-4 text-neutral-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+            </div>
+
+            <!-- Filtered Supplier Dropdown List for string[] -->
+            <div *ngIf="isSupplierDropdownOpen() && filteredSuppliers().length > 0"
+              class="absolute z-20 left-0 right-0 mt-1 bg-[#222222] border border-neutral-700 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+              <div *ngFor="let option of filteredSuppliers()" (click)="selectSupplier(option)"
+                class="px-3.5 py-2 text-xs text-neutral-300 hover:bg-[#333333] hover:text-white cursor-pointer transition-colors flex items-center justify-between border-b border-neutral-800 last:border-0">
+                <!-- FIXED: Display 'option' directly since it is a plain string -->
+                <span class="font-medium text-white">{{ option }}</span>
+                <span
+                  class="text-[10px] bg-neutral-800 text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-700">DB</span>
               </div>
             </div>
+
+            <!-- Empty State Message -->
+            <div *ngIf="isSupplierDropdownOpen() && !isLoadingSuppliers() && filteredSuppliers().length === 0"
+              class="absolute z-20 left-0 right-0 mt-1 bg-[#222222] border border-amber-900/50 rounded-lg shadow-xl p-3 text-xs text-amber-300">
+              No matching supplier found in database.
+            </div>
           </div>
-          <p *ngIf="productForm.get('supplierName')?.invalid && productForm.get('supplierName')?.touched" class="mt-1 text-xs text-red-400">
+
+          <!-- Validation Error Messages -->
+          <p *ngIf="productForm.get('supplierName')?.hasError('required') && productForm.get('supplierName')?.touched"
+            class="mt-1 text-xs text-red-400">
             Supplier Name is required.
+          </p>
+          <p *ngIf="productForm.get('supplierName')?.hasError('mustSelectExistingSupplier') && productForm.get('supplierName')?.touched"
+            class="mt-1 text-xs text-red-400 font-medium">
+            ⚠ Must select an existing supplier from the database list.
           </p>
         </div>
 
@@ -73,14 +93,11 @@
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             GST Number <span class="text-[#E50914]">*</span>
           </label>
-          <input 
-            type="text" 
-            formControlName="gstNumber" 
-            placeholder="e.g. 29ABCDE1234F1Z5"
+          <input type="text" formControlName="gstNumber" placeholder="e.g. 29ABCDE1234F1Z5"
             class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500 tracking-wider uppercase"
-            [ngClass]="{'border-red-500/80': productForm.get('gstNumber')?.invalid && productForm.get('gstNumber')?.touched}"
-          />
-          <p *ngIf="productForm.get('gstNumber')?.invalid && productForm.get('gstNumber')?.touched" class="mt-1 text-xs text-red-400">
+            [ngClass]="{'border-red-500/80': productForm.get('gstNumber')?.invalid && productForm.get('gstNumber')?.touched}" />
+          <p *ngIf="productForm.get('gstNumber')?.invalid && productForm.get('gstNumber')?.touched"
+            class="mt-1 text-xs text-red-400">
             GST Number is required.
           </p>
         </div>
@@ -90,14 +107,11 @@
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             SKU <span class="text-[#E50914]">*</span>
           </label>
-          <input 
-            type="text" 
-            formControlName="sku" 
-            placeholder="e.g. SKU-1002"
+          <input type="text" formControlName="sku" placeholder="e.g. SKU-1002"
             class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white font-mono text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all uppercase placeholder:text-neutral-500 tracking-wider"
-            [ngClass]="{'border-red-500/80': productForm.get('sku')?.invalid && productForm.get('sku')?.touched}"
-          />
-          <p *ngIf="productForm.get('sku')?.invalid && productForm.get('sku')?.touched" class="mt-1 text-xs text-red-400">
+            [ngClass]="{'border-red-500/80': productForm.get('sku')?.invalid && productForm.get('sku')?.touched}" />
+          <p *ngIf="productForm.get('sku')?.invalid && productForm.get('sku')?.touched"
+            class="mt-1 text-xs text-red-400">
             SKU is required.
           </p>
         </div>
@@ -107,30 +121,22 @@
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             Main SKU <span class="text-[#E50914]">*</span>
           </label>
-          <input 
-            type="text" 
-            formControlName="mainSku" 
-            placeholder="e.g. MSKU-9920"
-            (input)="onSkuInput($event)"
+          <input type="text" formControlName="mainSku" placeholder="e.g. MSKU-9920" (input)="onSkuInput($event)"
             class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white font-mono text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all uppercase placeholder:text-neutral-500 tracking-wider"
-            [ngClass]="{'border-red-500/80': productForm.get('mainSku')?.invalid && productForm.get('mainSku')?.touched}"
-          />
-          <p *ngIf="productForm.get('mainSku')?.invalid && productForm.get('mainSku')?.touched" class="mt-1 text-xs text-red-400">
+            [ngClass]="{'border-red-500/80': productForm.get('mainSku')?.invalid && productForm.get('mainSku')?.touched}" />
+          <p *ngIf="productForm.get('mainSku')?.invalid && productForm.get('mainSku')?.touched"
+            class="mt-1 text-xs text-red-400">
             Valid Main SKU is required (e.g. MSKU-8820).
           </p>
         </div>
-        
+
         <!-- Sub SKU Code -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             Sub SKU Code <span class="text-neutral-500 font-normal">(Optional)</span>
           </label>
-          <input 
-            type="text" 
-            formControlName="subSkuCode" 
-            placeholder="e.g. SUB-01"
-            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white font-mono text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all uppercase placeholder:text-neutral-500 tracking-wider"
-          />
+          <input type="text" formControlName="subSkuCode" placeholder="e.g. SUB-01"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white font-mono text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all uppercase placeholder:text-neutral-500 tracking-wider" />
         </div>
 
         <!-- Location Code -->
@@ -138,14 +144,11 @@
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             Location Code <span class="text-[#E50914]">*</span>
           </label>
-          <input 
-            type="text" 
-            formControlName="locationCode" 
-            placeholder="e.g. Warehouse A · Bay 14"
+          <input type="text" formControlName="locationCode" placeholder="e.g. Warehouse A · Bay 14"
             class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
-            [ngClass]="{'border-red-500/80': productForm.get('locationCode')?.invalid && productForm.get('locationCode')?.touched}"
-          />
-          <p *ngIf="productForm.get('locationCode')?.invalid && productForm.get('locationCode')?.touched" class="mt-1 text-xs text-red-400">
+            [ngClass]="{'border-red-500/80': productForm.get('locationCode')?.invalid && productForm.get('locationCode')?.touched}" />
+          <p *ngIf="productForm.get('locationCode')?.invalid && productForm.get('locationCode')?.touched"
+            class="mt-1 text-xs text-red-400">
             Location Code is required.
           </p>
         </div>
@@ -155,12 +158,8 @@
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             Qty <span class="text-neutral-500 font-normal">(Optional)</span>
           </label>
-          <input 
-            type="text" 
-            formControlName="qty" 
-            placeholder="e.g. 100"
-            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
-          />
+          <input type="text" formControlName="qty" placeholder="e.g. 100"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500" />
         </div>
 
         <!-- Image URL -->
@@ -168,12 +167,8 @@
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
             Image URL <span class="text-neutral-500 font-normal">(Optional)</span>
           </label>
-          <input 
-            type="text" 
-            formControlName="imageUrl" 
-            placeholder="e.g. https://example.com/img.jpg"
-            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500"
-          />
+          <input type="text" formControlName="imageUrl" placeholder="e.g. https://example.com/img.jpg"
+            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all placeholder:text-neutral-500" />
         </div>
       </div>
 
@@ -184,8 +179,11 @@
         </label>
         <label class="relative inline-flex items-center cursor-pointer">
           <input type="checkbox" formControlName="isActive" class="sr-only peer">
-          <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E50914]"></div>
-          <span class="ml-3 text-sm font-medium transition-colors" [ngClass]="productForm.get('isActive')?.value ? 'text-emerald-400 font-bold' : 'text-neutral-400'">
+          <div
+            class="w-11 h-6 bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E50914]">
+          </div>
+          <span class="ml-3 text-sm font-medium transition-colors"
+            [ngClass]="productForm.get('isActive')?.value ? 'text-emerald-400 font-bold' : 'text-neutral-400'">
             {{ productForm.get('isActive')?.value ? 'Active' : 'Inactive' }}
           </span>
         </label>
@@ -197,39 +195,32 @@
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400">
             Description <span class="text-neutral-500 font-normal">(Optional)</span>
           </label>
-          <span class="text-xs" [ngClass]="descriptionLength >= maxDescriptionLength ? 'text-red-400 font-semibold' : 'text-neutral-500'">
+          <span class="text-xs"
+            [ngClass]="descriptionLength >= maxDescriptionLength ? 'text-red-400 font-semibold' : 'text-neutral-500'">
             {{ descriptionLength }} / {{ maxDescriptionLength }}
           </span>
         </div>
-        <textarea 
-          formControlName="description" 
-          rows="3" 
-          [attr.maxlength]="maxDescriptionLength"
+        <textarea formControlName="description" rows="3" [attr.maxlength]="maxDescriptionLength"
           placeholder="Provide product details, specifications, or handling instructions..."
-          class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg p-3 outline-none transition-all placeholder:text-neutral-500 resize-none"
-        ></textarea>
+          class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white text-sm rounded-lg p-3 outline-none transition-all placeholder:text-neutral-500 resize-none"></textarea>
       </div>
 
       <!-- Footer Buttons -->
       <div class="pt-4 border-t border-neutral-800/80 flex items-center justify-end gap-3">
-        <button 
-          type="button" 
-          (click)="onCloseModal()"
-          [disabled]="isSubmitting()"
-          class="px-5 py-2.5 text-xs font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors focus:outline-none"
-        >
+        <button type="button" (click)="onCloseModal()" [disabled]="isSubmitting()"
+          class="px-5 py-2.5 text-xs font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors focus:outline-none">
           Cancel
         </button>
 
-        <button 
-          type="submit" 
-          [disabled]="isSubmitting()"
-          class="btn-netflix-primary relative inline-flex items-center justify-center px-6 py-2.5 bg-[#E50914] hover:bg-[#F40612] text-white font-bold text-sm rounded-lg transition-all duration-200 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-red-900/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-        >
+        <button type="submit" [disabled]="isSubmitting()"
+          class="btn-netflix-primary relative inline-flex items-center justify-center px-6 py-2.5 bg-[#E50914] hover:bg-[#F40612] text-white font-bold text-sm rounded-lg transition-all duration-200 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-red-900/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
           <!-- Loading Spinner -->
-          <svg *ngIf="isSubmitting()" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg *ngIf="isSubmitting()" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
           </svg>
 
           <span>{{ isSubmitting() ? 'Saving Product...' : 'Add Product' }}</span>

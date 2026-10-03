@@ -2,6 +2,7 @@ import { Component, EventEmitter, HostListener, Input, Output, OnInit, inject, s
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SupplierService } from '../../services/supplier.service';
+import { SupplierInfo } from '../../models/supplier-product.model';
 
 @Component({
   selector: 'app-add-product-modal',
@@ -27,6 +28,7 @@ export class AddProductModalComponent implements OnInit {
   // Signal starts empty - will be populated from DB call
   supplierOptions = signal<string[]>([]);
   filteredSuppliers = signal<string[]>([]);
+  supplierDetails = signal<SupplierInfo[]>([]);
   isSupplierDropdownOpen = signal(false);
 
   ngOnInit(): void {
@@ -41,11 +43,12 @@ export class AddProductModalComponent implements OnInit {
   loadSuppliersFromDb(): void {
     this.isLoadingSuppliers.set(true);
     
-    // Calls getSupplierNames() which returns string[]
-    this.supplierService.getSupplierNames().subscribe({
-      next: (suppliers: string[]) => {
-        this.supplierOptions.set(suppliers);
-        this.filteredSuppliers.set(suppliers);
+    this.supplierService.getSuppliersDetails().subscribe({
+      next: (suppliers: SupplierInfo[]) => {
+        this.supplierDetails.set(suppliers);
+        const supplierNames = suppliers.map(s => s.name);
+        this.supplierOptions.set(supplierNames);
+        this.filteredSuppliers.set(supplierNames);
         this.isLoadingSuppliers.set(false);
 
         const control = this.productForm.get('supplierName');
@@ -128,6 +131,36 @@ export class AddProductModalComponent implements OnInit {
     control?.markAsTouched();
     control?.updateValueAndValidity();
     this.isSupplierDropdownOpen.set(false);
+
+    // Case-insensitive lookup handling both 'GstNumber' and 'gstNumber' from API JSON response
+    const selectedSupplier = this.supplierDetails().find(
+      s => s.name?.trim().toLowerCase() === name?.trim().toLowerCase()
+    );
+
+    if (selectedSupplier) {
+      // Check uppercase, lowercase, and alternative property names from backend
+      const gstValue = selectedSupplier.GstNumber 
+        || (selectedSupplier as any).gstNumber 
+        || (selectedSupplier as any).gst;
+
+      if (gstValue) {
+        const gstControl = this.productForm.get('gstNumber');
+        gstControl?.setValue(gstValue);
+        gstControl?.markAsTouched();
+        gstControl?.updateValueAndValidity();
+      }
+
+      // Optional: Auto-fill locationCode if present in backend response
+      const locationValue = selectedSupplier.location 
+        || (selectedSupplier as any).locationCode;
+
+      if (locationValue) {
+        const locationControl = this.productForm.get('locationCode');
+        locationControl?.setValue(locationValue);
+        locationControl?.markAsTouched();
+        locationControl?.updateValueAndValidity();
+      }
+    }
   }
 
   get descriptionLength(): number {

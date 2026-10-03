@@ -26,6 +26,7 @@ export interface SupplierProduct extends SupplierProductFormData {
 export interface SupplierInfo {
   id: string;
   name: string;
+  GstNumber : string;
   code: string;
   location: string;
   category: string;

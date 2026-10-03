@@ -14,9 +14,14 @@ export class SupplierService {
   private supplierUrl = `${environment.apiUrl}/suppliers`;
   // Used by ADD PRODUCT MODAL for the supplier dropdown list
   getSupplierNames(): Observable<string[]> {
-    return this.http.get<any[]>(this.supplierUrl).pipe(
-      map(suppliers => suppliers.map(s => s.name || s.supplierName))
+    return this.http.get<SupplierInfo[]>(this.supplierUrl).pipe(
+      map(suppliers => suppliers.map(s => s.name || s.name))
     );
+  }
+
+  // Used by ADD PRODUCT MODAL to get full supplier details including GST
+  getSuppliersDetails(): Observable<SupplierInfo[]> {
+    return this.http.get<SupplierInfo[]>(this.supplierUrl);
   }
 
   // Used by SUPPLIERS PAGE to get full supplier details

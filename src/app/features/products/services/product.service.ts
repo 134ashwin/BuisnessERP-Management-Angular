@@ -30,6 +30,7 @@ export class ProductService {
           id: 101,
           subSku: 'SSKU-8820-S',
           size: 'Small (S)',
+          qty: '1',
           description: 'Chest 36-38 in / Hi-Vis Yellow',
           status: 'In Stock',
           imageUrl: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=150&auto=format&fit=crop&q=80',
@@ -39,6 +40,7 @@ export class ProductService {
           id: 102,
           subSku: 'SSKU-8820-M',
           size: 'Medium (M)',
+          qty: '1',
           description: 'Chest 39-41 in / Hi-Vis Yellow',
           status: 'In Stock',
           imageUrl: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=150&auto=format&fit=crop&q=80',
@@ -48,20 +50,12 @@ export class ProductService {
           id: 103,
           subSku: 'SSKU-8820-L',
           size: 'Large (L)',
+          qty: '1',
           description: 'Chest 42-44 in / Hi-Vis Yellow',
           status: 'Low Stock',
           imageUrl: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=150&auto=format&fit=crop&q=80',
           Date_d_m_y: '24/09/2026'
         },
-        {
-          id: 104,
-          subSku: 'SSKU-8820-XL',
-          size: 'Extra Large (XL)',
-          description: 'Chest 46-48 in / Hi-Vis Yellow',
-          status: 'Out of Stock',
-          imageUrl: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=150&auto=format&fit=crop&q=80',
-          Date_d_m_y: '24/09/2026'
-        }
       ]
     },
     {
@@ -79,29 +73,12 @@ export class ProductService {
           id: 201,
           subSku: 'SSKU-4402-40',
           size: 'EU 40 / US 7.5',
+          qty: '1',
           description: 'Oiled Nubuck Leather / Steel Cap',
           status: 'In Stock',
           imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&auto=format&fit=crop&q=80',
           Date_d_m_y: '22/09/2026'
         },
-        {
-          id: 202,
-          subSku: 'SSKU-4402-42',
-          size: 'EU 42 / US 9.0',
-          description: 'Oiled Nubuck Leather / Steel Cap',
-          status: 'In Stock',
-          imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&auto=format&fit=crop&q=80',
-          Date_d_m_y: '22/09/2026'
-        },
-        {
-          id: 203,
-          subSku: 'SSKU-4402-44',
-          size: 'EU 44 / US 10.5',
-          description: 'Oiled Nubuck Leather / Steel Cap',
-          status: 'Low Stock',
-          imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150&auto=format&fit=crop&q=80',
-          Date_d_m_y: '22/09/2026'
-        }
       ]
     },
     {
@@ -115,24 +92,7 @@ export class ProductService {
       Date_d_m_y: '18/09/2026',
       isExpanded: false,
       subSkus: [
-        {
-          id: 301,
-          subSku: 'SSKU-9910-120',
-          size: '120cm x 80cm',
-          description: 'Dual Motor / Matte Charcoal Finish',
-          status: 'Low Stock',
-          imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=150&auto=format&fit=crop&q=80',
-          Date_d_m_y: '18/09/2026'
-        },
-        {
-          id: 302,
-          subSku: 'SSKU-9910-160',
-          size: '160cm x 80cm',
-          description: 'Dual Motor / Matte Charcoal Finish',
-          status: 'Out of Stock',
-          imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=150&auto=format&fit=crop&q=80',
-          Date_d_m_y: '18/09/2026'
-        }
+        //empty subsku no data here
       ]
     },
     {
@@ -150,20 +110,12 @@ export class ProductService {
           id: 401,
           subSku: 'SSKU-3105-STD',
           size: 'Standard Universal',
+          qty: '1',
           description: 'Adjustable Silicone Headband / UV400',
           status: 'In Stock',
           imageUrl: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=150&auto=format&fit=crop&q=80',
           Date_d_m_y: '15/09/2026'
         },
-        {
-          id: 402,
-          subSku: 'SSKU-3105-SLM',
-          size: 'Slim Fit',
-          description: 'Compact Eyewear Seal / UV400',
-          status: 'In Stock',
-          imageUrl: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=150&auto=format&fit=crop&q=80',
-          Date_d_m_y: '15/09/2026'
-        }
       ]
     },
     {
@@ -177,33 +129,6 @@ export class ProductService {
       Date_d_m_y: '10/09/2026',
       isExpanded: false,
       subSkus: [
-        {
-          id: 501,
-          subSku: 'SSKU-7240-8',
-          size: 'Size 8 (M)',
-          description: 'EN 388 Level 5 Cut Resistance',
-          status: 'In Stock',
-          imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150&auto=format&fit=crop&q=80',
-          Date_d_m_y: '10/09/2026'
-        },
-        {
-          id: 502,
-          subSku: 'SSKU-7240-9',
-          size: 'Size 9 (L)',
-          description: 'EN 388 Level 5 Cut Resistance',
-          status: 'In Stock',
-          imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150&auto=format&fit=crop&q=80',
-          Date_d_m_y: '10/09/2026'
-        },
-        {
-          id: 503,
-          subSku: 'SSKU-7240-10',
-          size: 'Size 10 (XL)',
-          description: 'EN 388 Level 5 Cut Resistance',
-          status: 'In Stock',
-          imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150&auto=format&fit=crop&q=80',
-          Date_d_m_y: '10/09/2026'
-        }
       ]
     }
   ];
@@ -228,7 +153,8 @@ export class ProductService {
             p.description.toLowerCase().includes(q) ||
             p.status.toLowerCase().includes(q) ||
             p.Date_d_m_y.toLowerCase().includes(q) ||
-            p.subSkus.some(s => s.subSku.toLowerCase().includes(q) || s.size.toLowerCase().includes(q))
+            p.subSkus.some(s => s.subSku.toLocaleLowerCase(q).includes(q) || p.qty)
+            // p.subSkus.some(s => s.subSku.toLowerCase().includes(q) || s.size.toLowerCase().includes(q))
           );
         }
         return of(result.map(normalizeProduct));

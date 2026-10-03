@@ -31,7 +31,8 @@ export interface Product {
   sku?: string;                    // Backward compatibility alias for mainSku
   isExpanded?: boolean;            // UI state flag for expandable detail rows
 
-  // Resilient casing aliases
+  // Resilient casing aliases#
+  qty?: string;
   Supplier?: string;
   Location?: string;
   Description?: string;
@@ -44,58 +45,50 @@ export interface Product {
  * Ensures incoming raw/legacy API payloads are cleanly mapped to the normalized Product model,
  * lifting Supplier and Location to root and ensuring all 8 required fields are safely populated.
  */
-export function normalizeProduct(data: any): Product {
-  const raw = data || {};
-  const mainSku = String(raw.mainSku || raw.sku || `MSKU-${raw.id || '01'}`);
-  const supplier = String(
-    raw.supplier ||
-    raw.Supplier ||
-    raw['supplierName'] ||
-    raw.subSkus?.[0]?.['supplierName'] ||
-    raw.subSkus?.[0]?.['supplier'] ||
-    'Apex Global Logistics'
-  );
-  const location = String(
-    raw.location ||
-    raw.Location ||
-    raw.subSkus?.[0]?.['location'] ||
-    'Warehouse A · Bay 14'
-  );
-  const description = String(
-    raw.description ||
-    raw.Description ||
-    `Enterprise inventory catalog item ${mainSku}`
-  );
-  const status = (raw.status || raw.Status || 'Active') as ProductStatus;
-  const Date_d_m_y = String(
-    raw.Date_d_m_y ||
-    raw.date_d_m_y ||
-    raw['createdDate'] ||
-    '26/09/2026'
-  );
-
-  const subSkus: SubSkuDetail[] = Array.isArray(raw.subSkus)
-    ? raw.subSkus.map((sub: any, idx: number) => ({
-        id: sub.id ?? (idx + 1),
-        subSku: String(sub.subSku || sub.SubSku || `${mainSku}-V${idx + 1}`),
-        size: String(sub.size || sub.Size || 'Standard'),
-        description: sub.description || sub.Description || description,
-        status: sub.status || sub.Status || status,
-        imageUrl: sub.imageUrl || sub.image || '',
-        Date_d_m_y: String(sub.Date_d_m_y || sub.date_d_m_y || sub['createdDate'] || Date_d_m_y)
-      }))
-    : [];
+export function normalizeProduct(raw: any): Product {
+  // Extract first sub-SKU as fallback if root fields are missing
+  const firstSub = raw.subSkus?.[0] || raw.SubSkus?.[0] || {};
 
   return {
-    id: raw.id ?? 0,
-    mainSku,
-    sku: raw.sku || mainSku,
-    supplier,
-    location,
-    description,
-    status,
-    Date_d_m_y,
-    subSkus,
-    isExpanded: Boolean(raw.isExpanded)
+    id: raw.id ?? raw.Id ?? 0,
+    sku: raw.sku ?? raw.Sku ?? '',
+    mainSku: raw.mainSku ?? raw.MainSku ?? '',
+
+    // 🔴 FIX 1: Add missing required interface properties
+    description: raw.description ?? raw.Description ?? '',
+    status: raw.status ?? raw.Status ?? 'Active',
+    Date_d_m_y: raw.Date_d_m_y ?? raw.createdDate ?? raw.CreatedDate ?? 'N/A',
+
+    // Maps supplier and location flexibly from root or first sub-SKU
+    supplier: raw.supplierName
+      ?? raw.SupplierName
+      ?? raw.supplier
+      ?? firstSub.supplierName
+      ?? firstSub.SupplierName
+      ?? 'N/A',
+
+    location: raw.location
+      ?? raw.Location
+      ?? firstSub.location
+      ?? firstSub.Location
+      ?? 'N/A',
+
+    date_d_m_y: raw.createdDate
+      ?? raw.CreatedDate
+      ?? raw.Date_d_m_y
+      ?? firstSub.createdDate
+      ?? 'N/A',
+
+    subSkus: Array.isArray(raw.subSkus || raw.SubSkus)
+      ? (raw.subSkus || raw.SubSkus).map((s: any) => ({
+        id: s.id ?? s.Id ?? 0,
+        subSku: s.subSku ?? s.SubSku ?? s.subSkuCode ?? '',
+        qty: s.qty ?? s.Qty ?? 0,
+        imageUrl: s.imageUrl ?? s.ImageUrl ?? '',
+        supplierName: s.supplierName ?? s.SupplierName ?? 'N/A',
+        location: s.location ?? s.Location ?? 'N/A',
+        createdDate: s.createdDate ?? s.CreatedDate ?? 'N/A'
+      }))
+      : []
   };
 }

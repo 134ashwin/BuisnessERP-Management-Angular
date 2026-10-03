@@ -40,15 +40,24 @@ export class AddProductModalComponent implements OnInit {
    * Fetches suppliers from the database via SupplierService
    * and updates the reactive signals without disturbing existing functionality.
    */
-  loadSuppliersFromDb(): void {
+loadSuppliersFromDb(): void {
     this.isLoadingSuppliers.set(true);
     
     this.supplierService.getSuppliersDetails().subscribe({
       next: (suppliers: SupplierInfo[]) => {
         this.supplierDetails.set(suppliers);
-        const supplierNames = suppliers.map(s => s.name);
-        this.supplierOptions.set(supplierNames);
-        this.filteredSuppliers.set(supplierNames);
+
+        // Filter out duplicate names (case-insensitive & trimmed)
+        const uniqueSupplierNames = Array.from(
+          new Map(
+            suppliers
+              .filter(s => s?.name)
+              .map(s => [s.name.trim().toLowerCase(), s.name.trim()])
+          ).values()
+        );
+
+        this.supplierOptions.set(uniqueSupplierNames);
+        this.filteredSuppliers.set(uniqueSupplierNames);
         this.isLoadingSuppliers.set(false);
 
         const control = this.productForm.get('supplierName');

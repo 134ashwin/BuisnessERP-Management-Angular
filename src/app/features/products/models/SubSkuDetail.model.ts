@@ -10,7 +10,8 @@
 export interface SubSkuDetail {
   id: number;
   subSku: string;              // Required: Variant SKU code (SubSku)
-  size: string;                // Required: Variant Size (e.g., 'S', 'M', 'L', 'XL', '42', '10.5')
+  size: string;
+  qty: string;        // Required: Variant Size (e.g., 'S', 'M', 'L', 'XL', '42', '10.5')
   description?: string;        // Variant-level description or specification
   status?: string;             // Variant inventory status (e.g., 'In Stock', 'Low Stock')
   imageUrl?: string;           // Variant product image URL
@@ -18,7 +19,7 @@ export interface SubSkuDetail {
 
   // Resilient casing aliases for seamless API integration
   SubSku?: string;
-  Size?: string;
+  //Size?: string;
   Description?: string;
   Status?: string;
   date_d_m_y?: string;

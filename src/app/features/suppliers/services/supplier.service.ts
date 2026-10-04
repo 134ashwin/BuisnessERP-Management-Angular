@@ -42,4 +42,9 @@ export class SupplierService {
   createSupplier(supplierData: { name: string, gstNumber?: string }): Observable<any> {
     return this.http.post(this.supplierUrl, supplierData);
   }
+
+  // Used by Show Suppliers modal to get name and gst directly from DB
+  getSuppliersListFromDb(): Observable<any[]> {
+    return this.http.get<any[]>(this.supplierUrl);//'https://localhost:7098/api/Suppliers'
+  }
 }

@@ -110,6 +110,28 @@ export class SuppliersComponent implements OnInit {
     this.isAddSupplierModalOpen.set(false);
   }
 
+  // Show Suppliers Modal Logic
+  isShowSuppliersModalOpen = signal(false);
+  showSuppliersData = signal<any[]>([]);
+
+  openShowSuppliersModal(): void {
+    this.supplierService.getSuppliersListFromDb().subscribe({
+      next: (data) => {
+        this.showSuppliersData.set(data);
+        this.isShowSuppliersModalOpen.set(true);
+      },
+      error: (err) => {
+        console.error('Error fetching suppliers list:', err);
+        this.showToast('Failed to load suppliers data');
+        this.isShowSuppliersModalOpen.set(true); // Open anyway to show empty state
+      }
+    });
+  }
+
+  closeShowSuppliersModal(): void {
+    this.isShowSuppliersModalOpen.set(false);
+  }
+
   CreateNewSupplier(): void {
     if (!this.newSupplierName().trim()) {
       this.showToast('Supplier Name is mandatory');

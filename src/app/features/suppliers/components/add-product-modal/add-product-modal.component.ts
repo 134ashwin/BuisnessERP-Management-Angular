@@ -74,12 +74,11 @@ loadSuppliersFromDb(): void {
 
   initForm(): void {
     this.productForm = this.fb.group({
-      sku: ['', [Validators.required]],
       mainSku: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9\-_]{3,20}$/)]],
       description: ['', [Validators.maxLength(this.maxDescriptionLength)]],
       isActive: [true],
-      subSkuCode: [''],
-      qty: [''],
+      subSkuCode: ['', [Validators.required]],
+      qty: ['', [Validators.required]],
       imageUrl: [''],
       supplierName: [
         this.initialSupplierName || '',

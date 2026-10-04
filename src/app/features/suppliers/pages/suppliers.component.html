@@ -33,6 +33,18 @@
     <div class="flex gap-3">
       <button 
         type="button" 
+        (click)="openShowSuppliersModal()"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-[#181818] border border-neutral-700 hover:bg-[#242424] text-white font-bold text-sm rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 focus:ring-offset-[#141414]"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        <span>Show Suppliers</span>
+      </button>
+
+      <button 
+        type="button" 
         (click)="openAddSupplierModal()"
         class="inline-flex items-center gap-2 px-6 py-3 bg-[#181818] border border-neutral-700 hover:bg-[#242424] text-white font-bold text-sm rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 focus:ring-offset-[#141414]"
       >
@@ -225,6 +237,38 @@
           <button (click)="closeAddSupplierModal()" class="px-5 py-2.5 text-sm font-semibold text-neutral-300 hover:text-white bg-[#242424] hover:bg-[#2a2a2a] rounded-lg transition-colors border border-neutral-700 focus:outline-none">Cancel</button>
           <button (click)="CreateNewSupplier()" class="px-5 py-2.5 text-sm font-semibold text-white bg-[#E50914] hover:bg-[#F40612] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#181818]" [disabled]="!newSupplierName().trim()" [ngClass]="{'opacity-50 cursor-not-allowed': !newSupplierName().trim()}">Save Supplier</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Show Suppliers Modal (Cancel only to close) -->
+  <div *ngIf="isShowSuppliersModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+    <!-- Notice there is NO (click) handler on the backdrop or any 'X' close button inside the header -->
+    <div class="bg-[#181818] border border-neutral-800 rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[80vh] flex flex-col">
+      <div class="px-6 py-4 border-b border-neutral-800 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-white tracking-wide">All Suppliers</h2>
+      </div>
+      <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+        <ul class="divide-y divide-neutral-800">
+          <li *ngFor="let s of showSuppliersData()" class="py-3 flex justify-between items-center group">
+            <div>
+              <p class="text-sm font-semibold text-white group-hover:text-[#E50914] transition-colors">{{ s.name || s.Name || 'Unknown Supplier' }}</p>
+              <p class="text-xs text-neutral-400 mt-1">
+                GST: <span class="font-mono text-neutral-300">{{ s.gstNumber || s.GstNumber || 'N/A' }}</span>
+              </p>
+            </div>
+            <!-- If the API returns a status, show it, otherwise just empty or active -->
+            <span *ngIf="s.status || s.Status" [ngClass]="(s.status || s.Status) === 'Active' ? 'bg-emerald-950 text-emerald-400 border-emerald-800/60' : 'bg-neutral-800 text-neutral-400 border-neutral-700'" class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border">
+              {{ s.status || s.Status || 'Unknown' }}
+            </span>
+          </li>
+          <li *ngIf="showSuppliersData().length === 0" class="py-10 text-center text-neutral-500 text-sm">
+            No suppliers found in the database.
+          </li>
+        </ul>
+      </div>
+      <div class="px-6 py-4 border-t border-neutral-800 flex justify-end bg-[#141414]">
+        <button (click)="closeShowSuppliersModal()" class="px-6 py-2.5 text-sm font-bold tracking-wide text-white bg-[#E50914] hover:bg-[#F40612] rounded-lg transition-transform transform hover:scale-105 active:scale-95 shadow-lg shadow-red-950/40 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#181818]">Cancel</button>
       </div>
     </div>
   </div>

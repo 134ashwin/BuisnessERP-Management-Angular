@@ -94,4 +94,41 @@ export class SuppliersComponent implements OnInit {
     const val = (event.target as HTMLInputElement).value;
     this.searchQuery.set(val);
   }
+
+  // Add Supplier Modal Logic
+  isAddSupplierModalOpen = signal(false);
+  newSupplierName = signal('');
+  newSupplierGst = signal('');
+
+  openAddSupplierModal(): void {
+    this.newSupplierName.set('');
+    this.newSupplierGst.set('');
+    this.isAddSupplierModalOpen.set(true);
+  }
+
+  closeAddSupplierModal(): void {
+    this.isAddSupplierModalOpen.set(false);
+  }
+
+  CreateNewSupplier(): void {
+    if (!this.newSupplierName().trim()) {
+      this.showToast('Supplier Name is mandatory');
+      return;
+    }
+    
+    this.supplierService.createSupplier({
+      name: this.newSupplierName().trim(),
+      gstNumber: this.newSupplierGst().trim()
+    }).subscribe({
+      next: () => {
+        this.showToast(`Supplier ${this.newSupplierName()} added successfully`);
+        this.closeAddSupplierModal();
+        this.refreshData(); // Refresh list
+      },
+      error: (err: unknown) => {
+        console.error('Error adding supplier:', err);
+        this.showToast('Failed to add supplier');
+      }
+    });
+  }
 }

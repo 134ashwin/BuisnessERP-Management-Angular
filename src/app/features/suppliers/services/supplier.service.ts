@@ -37,4 +37,9 @@ export class SupplierService {
   handleCreateProduct(productData: any): Observable<any> {
     return this.http.post(this.apiUrl, productData);
   }
+
+  // Used to add a new supplier
+  createSupplier(supplierData: { name: string, gstNumber?: string }): Observable<any> {
+    return this.http.post(this.supplierUrl, supplierData);
+  }
 }

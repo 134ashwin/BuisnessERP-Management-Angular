@@ -102,19 +102,7 @@
           </p>
         </div>
 
-        <!-- SKU -->
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
-            SKU <span class="text-[#E50914]">*</span>
-          </label>
-          <input type="text" formControlName="sku" placeholder="e.g. SKU-1002"
-            class="w-full bg-[#333333] border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] text-white font-mono text-sm rounded-lg px-3.5 py-2.5 outline-none transition-all uppercase placeholder:text-neutral-500 tracking-wider"
-            [ngClass]="{'border-red-500/80': productForm.get('sku')?.invalid && productForm.get('sku')?.touched}" />
-          <p *ngIf="productForm.get('sku')?.invalid && productForm.get('sku')?.touched"
-            class="mt-1 text-xs text-red-400">
-            SKU is required.
-          </p>
-        </div>
+       
 
         <!-- Main SKU -->
         <div>

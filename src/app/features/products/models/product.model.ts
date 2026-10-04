@@ -38,6 +38,7 @@ export interface Product {
   Description?: string;
   Status?: string;
   date_d_m_y?: string;
+  createdDate: string;
 }
 
 /**
@@ -46,49 +47,80 @@ export interface Product {
  * lifting Supplier and Location to root and ensuring all 8 required fields are safely populated.
  */
 export function normalizeProduct(raw: any): Product {
-  // Extract first sub-SKU as fallback if root fields are missing
-  const firstSub = raw.subSkus?.[0] || raw.SubSkus?.[0] || {};
+  // If the API returned HTML or non-object data, handle safely
+  if (!raw || typeof raw !== 'object' || typeof raw === 'string') {
+    return {
+      id: 0,
+      sku: '',
+      mainSku: '',
+      description: 'N/A',
+      status: 'Active',
+      Date_d_m_y: 'N/A',
+      createdDate: 'N/A',
+      supplier: 'N/A',
+      Supplier: 'N/A',
+      location: 'N/A',
+      subSkus: []
+    };
+  }
+
+  // Fallback to first SubSKU if supplier/location/createdDate exist only on variants
+  const firstSub = Array.isArray(raw.subSkus || raw.SubSkus) && (raw.subSkus || raw.SubSkus).length > 0
+    ? (raw.subSkus || raw.SubSkus)[0]
+    : {};
+
+  // Extract date cleanly from createdDate, CreatedDate, or subSKU
+  const extractedDate = raw.Date_d_m_y 
+    ?? raw.createdDate 
+    ?? raw.CreatedDate 
+    ?? firstSub.createdDate 
+    ?? firstSub.CreatedDate 
+    ?? 'N/A';
+
+  // Extract supplier name cleanly
+  const extractedSupplier = raw.supplier 
+    ?? raw.supplierName 
+    ?? raw.SupplierName 
+    ?? firstSub.supplierName 
+    ?? firstSub.SupplierName 
+    ?? firstSub.supplier 
+    ?? 'N/A';
+
+  // Extract location cleanly
+  const extractedLocation = raw.location 
+    ?? raw.Location 
+    ?? firstSub.location 
+    ?? firstSub.Location 
+    ?? 'N/A';
 
   return {
     id: raw.id ?? raw.Id ?? 0,
     sku: raw.sku ?? raw.Sku ?? '',
     mainSku: raw.mainSku ?? raw.MainSku ?? '',
-
-    // 🔴 FIX 1: Add missing required interface properties
     description: raw.description ?? raw.Description ?? '',
     status: raw.status ?? raw.Status ?? 'Active',
-    Date_d_m_y: raw.Date_d_m_y ?? raw.createdDate ?? raw.CreatedDate ?? 'N/A',
 
-    // Maps supplier and location flexibly from root or first sub-SKU
-    supplier: raw.supplierName
-      ?? raw.SupplierName
-      ?? raw.supplier
-      ?? firstSub.supplierName
-      ?? firstSub.SupplierName
-      ?? 'N/A',
-
-    location: raw.location
-      ?? raw.Location
-      ?? firstSub.location
-      ?? firstSub.Location
-      ?? 'N/A',
-
-    date_d_m_y: raw.createdDate
-      ?? raw.CreatedDate
-      ?? raw.Date_d_m_y
-      ?? firstSub.createdDate
-      ?? 'N/A',
+    // Matches template bindings in HTML:
+    Date_d_m_y: extractedDate,
+    createdDate: extractedDate,
+    supplier: extractedSupplier,
+    Supplier: extractedSupplier,
+    location: extractedLocation,
 
     subSkus: Array.isArray(raw.subSkus || raw.SubSkus)
       ? (raw.subSkus || raw.SubSkus).map((s: any) => ({
-        id: s.id ?? s.Id ?? 0,
-        subSku: s.subSku ?? s.SubSku ?? s.subSkuCode ?? '',
-        qty: s.qty ?? s.Qty ?? 0,
-        imageUrl: s.imageUrl ?? s.ImageUrl ?? '',
-        supplierName: s.supplierName ?? s.SupplierName ?? 'N/A',
-        location: s.location ?? s.Location ?? 'N/A',
-        createdDate: s.createdDate ?? s.CreatedDate ?? 'N/A'
-      }))
+          id: s.id ?? s.Id ?? 0,
+          subSku: s.subSku ?? s.SubSku ?? s.subSkuCode ?? s.SubSkuCode ?? '',
+          qty: s.qty ?? s.Qty ?? 0,
+          size: s.size ?? s.Size ?? '-',
+          description: s.description ?? s.Description ?? '',
+          status: s.status ?? s.Status ?? 'Active',
+          imageUrl: s.imageUrl ?? s.ImageUrl ?? '',
+          supplierName: s.supplierName ?? s.SupplierName ?? extractedSupplier,
+          location: s.location ?? s.Location ?? extractedLocation,
+          createdDate: s.createdDate ?? s.CreatedDate ?? extractedDate,
+          Date_d_m_y: s.createdDate ?? s.CreatedDate ?? extractedDate
+        }))
       : []
   };
 }

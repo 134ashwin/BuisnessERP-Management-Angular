@@ -85,9 +85,9 @@
         <tbody class="divide-y divide-neutral-800/60">
           <tr *ngFor="let item of filteredCustomers()" class="hover:bg-[#202020] transition-colors group">
             <td class="py-4 px-6 font-mono text-white font-semibold tracking-wider">{{ item.orderNo }}</td>
-            <td class="py-4 px-6 text-white font-medium">{{ item.customerName }}</td>
+            <td class="py-4 px-6 text-white font-medium">{{ item.customerName || item.customer }}</td>
             <td class="py-4 px-6 text-neutral-300">{{ item.mainSku }}</td>
-            <td class="py-4 px-6 text-neutral-300">{{ item.subSku }}</td>
+            <td class="py-4 px-6 text-neutral-300">{{ item.subSku || '—' }}</td>
             <td class="py-4 px-6 text-neutral-400 text-xs">{{ item.size || '—' }}</td>
             <td class="py-4 px-6 text-neutral-400 text-xs max-w-xs truncate" [title]="item.description || ''">
               {{ item.description || 'No description' }}

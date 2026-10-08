@@ -34,12 +34,13 @@ export class CustomersComponent implements OnInit {
     const q = this.searchQuery().toLowerCase().trim();
     const list = this.customers();
     if (!q) return list;
-    return list.filter(c =>
-      c.customerName.toLowerCase().includes(q) ||
-      c.orderNo.toLowerCase().includes(q) ||
-      c.mainSku.toLowerCase().includes(q) ||
-      c.subSku.toLowerCase().includes(q)
-    );
+    return list.filter(c => {
+      const cust = (c.customerName || c.customer || '').toLowerCase();
+      const order = (c.orderNo || '').toLowerCase();
+      const main = (c.mainSku || '').toLowerCase();
+      const sub = (c.subSku || '').toLowerCase();
+      return cust.includes(q) || order.includes(q) || main.includes(q) || sub.includes(q);
+    });
   });
 
   ngOnInit(): void {

@@ -1,32 +1,31 @@
-import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../../../app/features/auth/services/auth.service';
+import { map, catchError, of } from 'rxjs';
 
-/**
- * Auth Guard - Protects routes that require authentication
- * Usage: Add to route guards: canActivate: [AuthGuard]
- */
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthGuard implements CanActivate {
-  constructor(private router: Router) {}
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean {
-    const isAuthenticated = this.checkAuth(); // Implement based on auth service
+  console.log('--- AuthGuard Triggered ---');
+  console.log('In-memory isLoggedIn status:', authService.isLoggedin());
 
-    if (!isAuthenticated) {
-      this.router.navigate(['/auth/login']);
-      return false;
-    }
-
+  // 1. If already authenticated in memory, let user through immediately
+  if (authService.isLoggedin()) {
     return true;
   }
 
-  private checkAuth(): boolean {
-    // TODO: Implement actual authentication check
-    return false; // Initially false - integrate with AuthService
-  }
-}
+  // 2. On browser refresh (in-memory state lost), try refreshing token via HttpOnly cookie
+  return authService.refreshToken().pipe(
+    map(() => {
+      console.log('Token refresh successful -> Allowing route access');
+      return true;
+    }),
+    catchError((error) => {
+      console.warn('Refresh failed/expired -> Redirecting to login', error);
+      return of(router.createUrlTree(['/auth/login'], {
+        queryParams: { returnUrl: state.url }
+      }));
+    })
+  );
+};

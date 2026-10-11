@@ -10,9 +10,9 @@ import {
 } from '../models/auth.model'; // Imported from feature models folder!
 import { HttpClient, HttpBackend } from '@angular/common/http';
 import { Router } from '@angular/router';
-import {environment}  from '../../../../environments/environment'; // Import environment for baseUrl
+import { environment } from '../../../../environments/environment'; // Import environment for baseUrl
 
-  
+
 @Injectable({
   providedIn: 'root'
 })
@@ -27,6 +27,14 @@ export class AuthService {
 
   // In-memory Signal for auth state
   currentUser = signal<string | null>(null);
+
+  /**
+   * isLoggedIn() is a Helper method for AuthGuard to check login status.
+   * It Returns true if user data exists in memory.
+   */
+  isLoggedin(): boolean {
+    return this.currentUser() !== null;
+  }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.api.post<LoginResponse>('auth/login', credentials).pipe(

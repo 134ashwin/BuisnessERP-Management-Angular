@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from '../../src/app/core/guards/auth.guard'; // 1. Import your authGuard
 
 /**
  * Application Routes
@@ -6,7 +7,7 @@ import { Routes } from '@angular/router';
  */
 export const routes: Routes = [
   { 
-    path: '', 
+    path: '',
     redirectTo: 'auth/login', 
     pathMatch: 'full' 
   },
@@ -17,10 +18,17 @@ export const routes: Routes = [
   { 
     path: 'dashboard', 
     loadComponent: () => import('./features/dashboard/pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard], // 2. Add AuthGuard here to protect Dashboard & all sub-routes!
     children:[
       {
         path: 'sales',
-        loadComponent: () => import('./features/sales/pages/sales.component').then(m => m.SalesComponent)
+        loadComponent: () => import('./features/sales/pages/sales.component').then(m => m.SalesComponent),
+        canActivate: [authGuard]
+      },
+      {
+        path: 'sales-orders',
+        loadComponent: () => import('./features/sales/pages/sales-orders/sales-orders.component').then(m => m.SalesOrdersComponent),
+        canActivate: [authGuard]
       },
       {
          path: 'products',

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { Customer, CustomerOrderResponseDto, CreateCustomerRequestDto } from '../models/customer.model';
+import { Customer, CustomerResponseDto, CustomerCreateDto } from '../models/customer.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({
@@ -9,32 +9,57 @@ import { environment } from '../../../../environments/environment';
 })
 export class CustomerService {
   private http = inject(HttpClient);
-  // Endpoint for customers: /api/Customer
-  private apiUrl = `${environment.apiUrl}/Customer`;
+  // Primary endpoint: /api/customers
+  private apiUrl = `${environment.apiUrl}/customers`;
 
   getCustomers(): Observable<Customer[]> {
-    return this.http.get<CustomerOrderResponseDto[]>(this.apiUrl).pipe(
+    return this.http.get<CustomerResponseDto[]>(this.apiUrl).pipe(
       map((items) =>
-        (items || []).map((dto) => {
-          // .NET backend returns property 'Customer' (camelCase: 'customer') in CustomerOrderResponseDto
-          const customerName = dto.customer || (dto as any).Customer || (dto as any).customerName || '';
-          return {
-            id: dto.id,
-            orderNo: dto.orderNo || '',
-            mainSku: dto.mainSku || '',
-            subSku: dto.subSku ?? '',
-            size: dto.size ?? '',
-            customer: customerName,
-            customerName: customerName,
-            description: dto.description ?? '',
-            createdAt: dto.createdAt
-          };
-        })
+        (items || []).map((dto) => this.mapDtoToCustomer(dto))
       )
     );
   }
 
-  createCustomer(payload: CreateCustomerRequestDto): Observable<any> {
-    return this.http.post(this.apiUrl, payload);
+  getB2BCustomers(): Observable<Customer[]> {
+    return this.http.get<CustomerResponseDto[]>(`${this.apiUrl}/b2b`).pipe(
+      map((items) =>
+        (items || []).map((dto) => this.mapDtoToCustomer(dto))
+      )
+    );
+  }
+
+  getB2CCustomers(): Observable<Customer[]> {
+    return this.http.get<CustomerResponseDto[]>(`${this.apiUrl}/b2c`).pipe(
+      map((items) =>
+        (items || []).map((dto) => this.mapDtoToCustomer(dto))
+      )
+    );
+  }
+
+  createCustomer(payload: CustomerCreateDto): Observable<CustomerResponseDto> {
+    return this.http.post<CustomerResponseDto>(this.apiUrl, payload);
+  }
+
+  getCustomerById(id: number): Observable<CustomerResponseDto> {
+    return this.http.get<CustomerResponseDto>(`${this.apiUrl}/${id}`);
+  }
+
+  private mapDtoToCustomer(dto: CustomerResponseDto): Customer {
+    const rawGst = dto.gstNumber;
+    const formattedGst = (!rawGst || rawGst.trim() === '' || rawGst.toLowerCase() === 'no gst number')
+      ? 'No GST Number'
+      : rawGst;
+
+    return {
+      id: dto.id,
+      name: dto.name,
+      customerName: dto.name,
+      mobileNumber: dto.mobileNumber,
+      email: dto.email ?? null,
+      gstNumber: formattedGst,
+      address:dto.address,
+      description:dto.description,
+      isB2B: dto.isB2B ?? (formattedGst !== 'No GST Number')
+    };
   }
 }

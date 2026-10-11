@@ -3,14 +3,21 @@
   <!-- Toast Notification -->
   <div 
     *ngIf="toastMessage()" 
-    class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1e1e1e] border-l-4 border-[#E50914] text-white px-5 py-3.5 rounded-lg shadow-2xl animate-fade-in"
+    class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1e1e1e] border-l-4 text-white px-5 py-3.5 rounded-lg shadow-2xl animate-fade-in"
+    [ngClass]="toastMessage()?.type === 'error' ? 'border-red-500' : 'border-[#E50914]'"
   >
-    <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div 
+      class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+      [ngClass]="toastMessage()?.type === 'error' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'"
+    >
+      <svg *ngIf="toastMessage()?.type !== 'error'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
       </svg>
+      <svg *ngIf="toastMessage()?.type === 'error'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
     </div>
-    <span class="text-sm font-medium">{{ toastMessage() }}</span>
+    <span class="text-sm font-medium">{{ toastMessage()?.text }}</span>
     <button (click)="toastMessage.set(null)" class="ml-2 text-neutral-400 hover:text-white">✕</button>
   </div>
 
@@ -18,16 +25,16 @@
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 mb-8 border-b border-neutral-800 gap-4">
     <div>
       <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#E50914] mb-1">
-        <span>Customer Hub</span>
+        <span>Customer Directory</span>
       </div>
       <h1 class="text-3xl font-extrabold tracking-tight text-white">Customers</h1>
-      <p class="text-xs text-[#AAAAAA] mt-1">Manage customer profiles and sales order details.</p>
+      <p class="text-xs text-[#AAAAAA] mt-1">Manage customer profiles and auto-route to B2B or B2C Sales.</p>
     </div>
 
-    <!-- Primary Header Action Button "+ Add new Customer" -->
+    <!-- Primary Header Action Button "+ Add New Customer" -->
     <div>
       <div class="text-right mb-1">
-        <span class="text-[10px] text-neutral-400 italic">Added customer will be added to sales</span>
+        <span class="text-[10px] text-neutral-400 italic">Customers with GST route to B2B, others to B2C</span>
       </div>
       <button 
         type="button" 
@@ -37,7 +44,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
         </svg>
-        <span>+ Add new Customer</span>
+        <span> New Customer</span>
       </button>
     </div>
   </div>
@@ -54,48 +61,84 @@
         type="text" 
         [ngModel]="searchQuery()" 
         (input)="onSearch($event)" 
-        placeholder="Search customer, order no, sku..." 
+        placeholder="Search customer name, mobile, email, GST..." 
         class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg pl-10 pr-4 py-2 border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] outline-none transition-all"
       />
     </div>
 
     <div class="flex items-center gap-3">
       <span class="text-xs text-[#AAAAAA]">Showing {{ filteredCustomers().length }} customers</span>
+      <button 
+        (click)="refreshData()" 
+        title="Refresh Data"
+        class="px-3 py-1.5 bg-[#242424] hover:bg-[#2e2e2e] text-neutral-300 text-xs rounded border border-neutral-700 transition-colors"
+      >
+        ↻ Refresh
+      </button>
     </div>
   </div>
 
   <!-- Customers Table -->
   <div class="bg-[#181818] border border-neutral-800 rounded-xl shadow-2xl overflow-hidden mb-10">
     <div class="px-6 py-4 border-b border-neutral-800 flex items-center justify-between">
-      <h2 class="text-base font-bold text-white tracking-wide">Customer List</h2>
+      <h2 class="text-base font-bold text-white tracking-wide">Our Customers</h2>
     </div>
 
     <div class="overflow-x-auto">
       <table class="w-full text-left text-sm text-neutral-300">
         <thead class="bg-[#101010] text-xs uppercase tracking-wider text-neutral-400 border-b border-neutral-800">
           <tr>
-            <th class="py-3.5 px-6 font-semibold">Order No</th>
             <th class="py-3.5 px-6 font-semibold">Customer Name</th>
-            <th class="py-3.5 px-6 font-semibold">Main SKU</th>
-            <th class="py-3.5 px-6 font-semibold">Sub SKU</th>
-            <th class="py-3.5 px-6 font-semibold">Size</th>
+            <th class="py-3.5 px-6 font-semibold">Mobile Number</th>
+            <th class="py-3.5 px-6 font-semibold">Email</th>
+            <th class="py-3.5 px-6 font-semibold">GST Number</th>
+            <th class="py-3.5 px-6 font-semibold">Address</th>
             <th class="py-3.5 px-6 font-semibold">Description</th>
+            <!-- <th class="py-3.5 px-6 font-semibold">Segment</th> -->
           </tr>
         </thead>
         <tbody class="divide-y divide-neutral-800/60">
           <tr *ngFor="let item of filteredCustomers()" class="hover:bg-[#202020] transition-colors group">
-            <td class="py-4 px-6 font-mono text-white font-semibold tracking-wider">{{ item.orderNo }}</td>
-            <td class="py-4 px-6 text-white font-medium">{{ item.customerName || item.customer }}</td>
-            <td class="py-4 px-6 text-neutral-300">{{ item.mainSku }}</td>
-            <td class="py-4 px-6 text-neutral-300">{{ item.subSku || '—' }}</td>
-            <td class="py-4 px-6 text-neutral-400 text-xs">{{ item.size || '—' }}</td>
-            <td class="py-4 px-6 text-neutral-400 text-xs max-w-xs truncate" [title]="item.description || ''">
-              {{ item.description || 'No description' }}
+            <td class="py-4 px-6 text-white font-semibold">{{ item.name || item.customerName }}</td>
+            <td class="py-4 px-6 font-mono text-neutral-200">{{ item.mobileNumber }}</td>
+            <td class="py-4 px-6 text-neutral-300">{{ item.email || '—' }}</td>
+            <td class="py-4 px-6 font-mono text-xs">
+              <span 
+                [ngClass]="item.gstNumber === 'No GST Number' ? 'text-neutral-500 italic' : 'text-[#38bdf8] font-medium'"
+              >
+                {{ item.gstNumber || 'No GST Number' }}
+              </span>
+            </td>
+            <td class="py-4 px-6 font-mono text-xs">
+              <span 
+                [ngClass]="item.description === 'Empty' ? 'text-neutral-500 italic' : 'text-[#38bdf8] font-medium'"
+              >
+                {{ item.description || 'Empty' }}
+              </span>
+            </td>
+            <!-- <td class="py-4 px-6">
+              <span 
+                *ngIf="item.isB2B" 
+                class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30"
+              >
+                B2B
+              </span>
+              <span 
+                *ngIf="!item.isB2B" 
+                class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+              >
+                B2C
+              </span>
+            </td> -->
+          </tr>
+          <tr *ngIf="filteredCustomers().length === 0 && !isLoading()">
+            <td colspan="5" class="py-12 text-center text-neutral-500 text-sm">
+              No customers found. Click "New Customer" to create one.
             </td>
           </tr>
-          <tr *ngIf="filteredCustomers().length === 0">
-            <td colspan="6" class="py-12 text-center text-neutral-500 text-sm">
-              No customers found.
+          <tr *ngIf="isLoading()">
+            <td colspan="5" class="py-12 text-center text-neutral-400 text-sm">
+              Loading customers...
             </td>
           </tr>
         </tbody>
@@ -105,11 +148,11 @@
 
   <!-- Add Customer Modal -->
   <div *ngIf="isModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-    <div class="bg-[#181818] border border-neutral-800 rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+    <div class="bg-[#181818] border border-neutral-800 rounded-xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
       <div class="px-6 py-4 border-b border-neutral-800 flex items-center justify-between">
         <div>
-          <h2 class="text-lg font-bold text-white tracking-wide">Add New Customer</h2>
-          <p class="text-[10px] text-neutral-400 italic mt-0.5">This added customer will be added to sales</p>
+          <h2 class="text-lg font-bold text-white tracking-wide">New Customer</h2>
+          <p class="text-[11px] text-neutral-400 mt-0.5">Please fill out customer details below</p>
         </div>
         <button (click)="closeModal()" class="text-neutral-500 hover:text-white transition-colors focus:outline-none">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -117,92 +160,152 @@
       </div>
       
       <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-2">
+        <!-- EXACT Form Field Order:
+             1. Customer Name (Required)
+             2. Mobile Number (Required)
+             3. Email ID (Optional)
+             4. GST Number (Optional)
+        -->
+        <form (ngSubmit)="submitNewCustomer()" class="space-y-4">
           
-          <!-- Order No -->
+          <!-- 1. Customer Name (Required) -->
           <div>
-            <label class="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Order No *</label>
-            <input 
-              type="text" 
-              [ngModel]="newCustomer().orderNo" 
-              (ngModelChange)="newCustomer.set({ ...newCustomer(), orderNo: $event })"
-              placeholder="e.g. ORD-1001" 
-              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] outline-none transition-all"
-            />
-          </div>
-          
-          <!-- Customer -->
-          <div>
-            <label class="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Customer Name *</label>
+            <label class="block text-xs font-semibold text-neutral-300 mb-1.5 uppercase tracking-wider">
+              1. Customer Name <span class="text-red-500">*</span>
+            </label>
             <input 
               type="text" 
               [ngModel]="newCustomer().customerName" 
-              (ngModelChange)="newCustomer.set({ ...newCustomer(), customerName: $event })"
-              placeholder="e.g. John Doe" 
-              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] outline-none transition-all"
+              (ngModelChange)="updateField('customerName', $event)"
+              name="customerName"
+              placeholder="e.g. Acme Corp / Rahul Verma" 
+              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border transition-all outline-none"
+              [ngClass]="formErrors().customerName ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]'"
             />
+            <p *ngIf="formErrors().customerName" class="text-red-400 text-xs mt-1">
+              {{ formErrors().customerName }}
+            </p>
           </div>
 
-          <!-- Main Sku -->
+          <!-- 2. Mobile Number (Required) -->
           <div>
-            <label class="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Main Sku *</label>
+            <label class="block text-xs font-semibold text-neutral-300 mb-1.5 uppercase tracking-wider">
+              2. Mobile Number <span class="text-red-500">*</span>
+            </label>
             <input 
-              type="text" 
-              [ngModel]="newCustomer().mainSku" 
-              (ngModelChange)="newCustomer.set({ ...newCustomer(), mainSku: $event })"
-              placeholder="Enter Main Sku" 
-              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] outline-none transition-all"
+              type="tel" 
+              [ngModel]="newCustomer().mobileNumber" 
+              (ngModelChange)="updateField('mobileNumber', $event)"
+              name="mobileNumber"
+              placeholder="e.g. 9876543210" 
+              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border transition-all outline-none font-mono"
+              [ngClass]="formErrors().mobileNumber ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]'"
             />
+            <p *ngIf="formErrors().mobileNumber" class="text-red-400 text-xs mt-1">
+              {{ formErrors().mobileNumber }}
+            </p>
           </div>
 
-          <!-- Sub Sku -->
+          <!-- 3. Email ID (Optional) -->
           <div>
-            <label class="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Sub Sku</label>
+            <label class="block text-xs font-semibold text-neutral-300 mb-1.5 uppercase tracking-wider flex items-center justify-between">
+              <span>3. Email ID <span class="text-neutral-500 text-[11px] normal-case">(Optional)</span></span>
+            </label>
             <input 
-              type="text" 
-              [ngModel]="newCustomer().subSku" 
-              (ngModelChange)="newCustomer.set({ ...newCustomer(), subSku: $event })"
-              placeholder="Enter Sub Sku" 
-              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] outline-none transition-all"
+              type="email" 
+              [ngModel]="newCustomer().email" 
+              (ngModelChange)="updateField('email', $event)"
+              name="email"
+              placeholder="e.g. contact@business.com" 
+              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border transition-all outline-none"
+              [ngClass]="formErrors().email ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]'"
             />
+            <p *ngIf="formErrors().email" class="text-red-400 text-xs mt-1">
+              {{ formErrors().email }}
+            </p>
           </div>
 
-          <!-- Size -->
+          <!-- 4. GST Number (Optional) -->
           <div>
-            <label class="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Size</label>
+            <label class="block text-xs font-semibold text-neutral-300 mb-1.5 uppercase tracking-wider flex items-center justify-between">
+              <span>4. GST Number <span class="text-neutral-500 text-[11px] normal-case">(Optional)</span></span>
+            </label>
             <input 
               type="text" 
-              [ngModel]="newCustomer().size" 
-              (ngModelChange)="newCustomer.set({ ...newCustomer(), size: $event })"
-              placeholder="e.g. L, XL, 42" 
-              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] outline-none transition-all"
+              [ngModel]="newCustomer().gstNumber" 
+              (ngModelChange)="updateField('gstNumber', $event)"
+              name="gstNumber"
+              placeholder="e.g. 27AAAAA0000A1Z5 (Leaves empty for B2C)" 
+              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border transition-all outline-none font-mono uppercase"
+              [ngClass]="formErrors().gstNumber ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]'"
             />
+            <p *ngIf="formErrors().gstNumber" class="text-red-400 text-xs mt-1">
+              {{ formErrors().gstNumber }}
+            </p>
+            <p class="text-[11px] text-neutral-400 mt-1 italic">
+              💡 Providing a GST number routes this customer to B2B Sales; leaving it empty routes to B2C Sales.
+            </p>
           </div>
-          
+
+                 <div>
+            <label class="block text-xs font-semibold text-neutral-300 mb-1.5 uppercase tracking-wider">
+              Address <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="tel" 
+              [ngModel]="newCustomer().address" 
+              (ngModelChange)="updateField('address', $event)"
+              name="Address"
+              placeholder="e.g. Murlipura,Jaipur" 
+              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border transition-all outline-none font-mono"
+              [ngClass]="formErrors().address ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]'"
+            />
+            <p *ngIf="formErrors().address" class="text-red-400 text-xs mt-1">
+              {{ formErrors().address }}
+            </p>
+          </div>
+
           <!-- Description -->
-          <div class="md:col-span-2">
-            <label class="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wider">Description</label>
-            <textarea 
-              [ngModel]="newCustomer().description" 
-              (ngModelChange)="newCustomer.set({ ...newCustomer(), description: $event })"
-              placeholder="Additional details..." 
-              rows="3"
-              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] outline-none transition-all"
-            ></textarea>
+            <div>
+            <label class="block text-xs font-semibold text-neutral-300 mb-1.5 uppercase tracking-wider flex items-center justify-between">
+              <span>Description <span class="text-neutral-500 text-[11px] normal-case">(Optional)</span></span>
+            </label>
+            <input 
+              type="text" 
+              [ngModel]="newCustomer().gstNumber" 
+              (ngModelChange)="updateField('gstNumber', $event)"
+              name="gstNumber"
+              placeholder="e.g. 27AAAAA0000A1Z5 (Leaves empty for B2C)" 
+              class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border transition-all outline-none font-mono uppercase"
+              [ngClass]="formErrors().gstNumber ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]'"
+            />
+            <p *ngIf="formErrors().gstNumber" class="text-red-400 text-xs mt-1">
+              {{ formErrors().gstNumber }}
+            </p>
+            <p class="text-[11px] text-neutral-400 mt-1 italic">
+              💡 Providing a GST number routes this customer to B2B Sales; leaving it empty routes to B2C Sales.
+            </p>
           </div>
 
-        </div>
+        </form>
       </div>
       
       <div class="px-6 py-4 border-t border-neutral-800 flex justify-end gap-3 bg-[#141414]">
-        <button (click)="closeModal()" class="px-5 py-2.5 text-sm font-semibold text-neutral-300 hover:text-white bg-[#242424] hover:bg-[#2a2a2a] rounded-lg transition-colors border border-neutral-700 focus:outline-none">Cancel</button>
         <button 
+          type="button" 
+          (click)="closeModal()" 
+          class="px-5 py-2.5 text-sm font-semibold text-neutral-300 hover:text-white bg-[#242424] hover:bg-[#2a2a2a] rounded-lg transition-colors border border-neutral-700 focus:outline-none"
+        >
+          Cancel
+        </button>
+        <button 
+          type="button" 
           (click)="submitNewCustomer()" 
-          [disabled]="!newCustomer().customerName.trim() || !newCustomer().orderNo.trim() || !newCustomer().mainSku.trim()" 
-          [ngClass]="{'opacity-50 cursor-not-allowed': !newCustomer().customerName.trim() || !newCustomer().orderNo.trim() || !newCustomer().mainSku.trim()}"
+          [disabled]="isSubmitting() || !newCustomer().customerName.trim() || !newCustomer().mobileNumber.trim()" 
+          [ngClass]="{'opacity-50 cursor-not-allowed': isSubmitting() || !newCustomer().customerName.trim() || !newCustomer().mobileNumber.trim()}"
           class="px-6 py-2.5 text-sm font-bold tracking-wide text-white bg-[#E50914] hover:bg-[#F40612] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#181818]"
         >
-          Save & Add to Sales
+          {{ isSubmitting() ? 'Saving...' : 'Save Customer' }}
         </button>
       </div>
 

@@ -1,43 +1,43 @@
 export interface CustomerFormData {
-  orderNo: string;
-  mainSku: string;
-  subSku: string;
-  size: string;
   customerName: string;
-  description: string;
+  mobileNumber: string;
+  address: string; // Required
+  email?: string;
+  gstNumber?: string;
+  description?: string; // Optional
 }
 
-// Backend Response DTO matching .NET CustomerOrderResponseDto
-export interface CustomerOrderResponseDto {
+// Backend Request DTO matching .NET CustomerCreateDto
+export interface CustomerCreateDto {
+  name: string;
+  mobileNumber: string;
+  address: string; // Required
+  email?: string | null;
+  gstNumber?: string | null;
+  description?: string | null; // Optional
+}
+
+// Backend Response DTO matching .NET CustomerResponseDto
+export interface CustomerResponseDto {
   id: number;
-  orderNo: string;
-  mainSku: string;
-  subSku?: string | null;
-  size?: string | null;
-  customer: string; // 👈 Matches C# CustomerOrderResponseDto property 'Customer'
+  name: string;
+  mobileNumber: string;
+  address: string; // Required
+  email?: string | null;
+  gstNumber: string; // Displays "No GST Number" when null on backend
   description?: string | null;
-  createdAt: string;
+  isB2B: boolean;
 }
 
 export interface Customer {
-  id?: string | number;
-  orderNo: string;
-  mainSku: string;
-  subSku?: string | null;
-  size?: string | null;
-  customer: string;
-  customerName: string;
+  id: number;
+  name: string;
+  customerName?: string; // Compatibility alias
+  mobileNumber: string;
+  address: string; // Required
+  Address?: string; // Compatibility alias for casing
+  email?: string | null;
+  gstNumber: string;
   description?: string | null;
-  createdAt?: string;
-  status?: string;
-}
-
-// For Backend API POST Payload
-export interface CreateCustomerRequestDto {
-  orderNo: string;
-  mainSku: string;
-  subSku: string | null;
-  size: string | null;
-  customer: string; // 👈 Matches C# CreateCustomerOrderDto
-  description: string | null;
+  isB2B: boolean;
 }

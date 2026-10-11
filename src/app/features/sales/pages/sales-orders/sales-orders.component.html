@@ -1,0 +1,203 @@
+<div class="flex flex-col h-[calc(100vh-6.5rem)] w-full min-w-0 p-3 sm:p-5 box-border overflow-hidden gap-3.5 sm:gap-4 font-sans">
+  
+  <!-- Toast Notification -->
+  <div 
+    *ngIf="toastMessage()" 
+    class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1e1e1e] border-l-4 text-white px-5 py-3.5 rounded-lg shadow-2xl animate-fade-in"
+    [ngClass]="toastMessage()?.type === 'error' ? 'border-red-500' : 'border-[#E50914]'"
+  >
+    <div 
+      class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+      [ngClass]="toastMessage()?.type === 'error' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'"
+    >
+      <svg *ngIf="toastMessage()?.type !== 'error'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <svg *ngIf="toastMessage()?.type === 'error'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </div>
+    <span class="text-sm font-medium">{{ toastMessage()?.text }}</span>
+    <button (click)="toastMessage.set(null)" class="ml-2 text-neutral-400 hover:text-white">✕</button>
+  </div>
+
+  <!-- Page Header (Fixed Height) -->
+  <div class="shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-neutral-800 gap-3">
+    <div>
+      <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#E50914] mb-0.5">
+        <span>Order Operations</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white m-0 drop-shadow-[0_0_20px_rgba(229,9,20,0.25)]">
+        Sales Orders
+      </h1>
+      <p class="text-xs text-neutral-400 m-0 mt-0.5">
+        Bulk order tracking with Excel Import & Export
+      </p>
+    </div>
+
+    <!-- Action Buttons: Import Excel & Export Excel -->
+    <div class="flex items-center gap-2.5">
+      
+      <!-- EXPORT EXCEL BUTTON -->
+      <button 
+        type="button" 
+        (click)="exportExcel()"
+        [disabled]="filteredOrders().length === 0 || isLoading()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#107c41] hover:bg-[#0c6b37] disabled:opacity-50 text-white rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 shadow-md shadow-emerald-950/30 cursor-pointer disabled:cursor-not-allowed focus:outline-none"
+        title="Export filtered records to .xlsx file"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <span>Export Excel</span>
+      </button>
+
+      <!-- IMPORT EXCEL BUTTON -->
+      <label class="relative inline-flex items-center justify-center cursor-pointer">
+        <input 
+          type="file" 
+          class="hidden" 
+          (change)="onFileSelected($event)" 
+          accept=".xlsx, .xls" 
+          [disabled]="isUploading()" />
+        <span class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#E50914] hover:bg-[#F40612] text-white rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 shadow-md shadow-red-950/30 disabled:opacity-50 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+          </svg>
+          <span>{{ isUploading() ? 'Importing...' : 'Import Excel' }}</span>
+        </span>
+      </label>
+
+    </div>
+  </div>
+
+  <!-- Search & Toolbar (Fixed Height) -->
+  <div class="shrink-0 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 bg-[#181818] p-3 rounded-xl border border-neutral-800 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
+    
+    <!-- UNIVERSAL SEARCH BAR: searches across ANY field typed -->
+    <div class="relative flex-1 max-w-xl flex items-center">
+      <svg class="absolute left-3.5 text-neutral-500 pointer-events-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input 
+        type="text" 
+        class="w-full bg-[#242424] border border-neutral-700 text-white pl-10 pr-4 py-2.5 rounded-lg text-xs sm:text-sm outline-none transition-all placeholder:text-neutral-500 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]" 
+        placeholder="Search any field: Order No, Date, Main SKU, Sub SKU, Size, Customer, Description..." 
+        [value]="searchQuery()" 
+        (input)="onSearch($event)" 
+      />
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="flex items-center gap-2.5">
+      <button 
+        type="button"
+        class="bg-[#242424] text-neutral-300 px-4 py-2 rounded-lg font-semibold text-xs border border-neutral-700 cursor-pointer transition-colors hover:bg-[#2c2c2c] hover:text-white" 
+        (click)="onReset()">
+        Reset
+      </button>
+
+      <button 
+        type="button"
+        class="bg-[#242424] text-neutral-300 px-3.5 py-2 rounded-lg font-semibold text-xs border border-neutral-700 cursor-pointer transition-colors hover:bg-[#2c2c2c] hover:text-white" 
+        (click)="fetchOrders()"
+        title="Reload orders from server">
+        ↻ Refresh
+      </button>
+
+      <span class="text-xs text-[#AAAAAA] hidden sm:inline ml-1">
+        Showing {{ filteredOrders().length }} orders
+      </span>
+    </div>
+  </div>
+
+  <!-- Data Table Container (Flex Fill + Internal Scroll Only) -->
+  <div class="flex-1 min-h-0 bg-[#181818] rounded-xl border border-neutral-800 overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.4)] flex flex-col">
+    <div class="w-full h-full overflow-auto [-webkit-overflow-scrolling:touch]">
+      <!-- EXACT REQUESTED FIELDS:
+           Order Date, Order No, Main SKU, Sub SKU, Size, Customer, Description
+      -->
+      <table class="w-full border-collapse text-left text-xs sm:text-sm min-w-[850px]">
+        <thead class="sticky top-0 bg-[#101010] z-10 border-b border-neutral-800 text-neutral-400 font-bold text-[0.72rem] uppercase tracking-wider">
+          <tr>
+            <th class="px-4 py-3.5 whitespace-nowrap">Order Date</th>
+            <th class="px-4 py-3.5 whitespace-nowrap">Order No</th>
+            <th class="px-4 py-3.5 whitespace-nowrap">Main SKU</th>
+            <th class="px-4 py-3.5 whitespace-nowrap">Sub SKU</th>
+            <th class="px-4 py-3.5 whitespace-nowrap">Size</th>
+            <th class="px-4 py-3.5 whitespace-nowrap">Customer</th>
+            <th class="px-4 py-3.5 whitespace-nowrap">Description</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-neutral-800/60">
+          @for (order of pagedOrders(); track order.id || order.orderNo) {
+            <tr class="transition-colors hover:bg-[#202020]">
+              <!-- 1. Order Date -->
+              <td class="px-4 py-3 text-neutral-400 whitespace-nowrap">{{ order.orderDate }}</td>
+              
+              <!-- 2. Order No -->
+              <td class="px-4 py-3 font-bold text-[#38bdf8] whitespace-nowrap font-mono">{{ order.orderNo }}</td>
+              
+              <!-- 3. Main SKU -->
+              <td class="px-4 py-3 font-mono text-white font-medium whitespace-nowrap">{{ order.mainSku }}</td>
+              
+              <!-- 4. Sub SKU -->
+              <td class="px-4 py-3 font-mono text-neutral-300 whitespace-nowrap">{{ order.subSku || '—' }}</td>
+              
+              <!-- 5. Size -->
+              <td class="px-4 py-3 font-semibold text-white whitespace-nowrap">{{ order.size || '—' }}</td>
+              
+              <!-- 6. Customer -->
+              <td class="px-4 py-3 text-neutral-200 font-medium whitespace-nowrap">{{ order.customer }}</td>
+              
+              <!-- 7. Description -->
+              <td class="px-4 py-3 text-neutral-400 truncate max-w-xs" [title]="order.description || ''">
+                {{ order.description || '—' }}
+              </td>
+            </tr>
+          } @empty {
+            @if (!isLoading()) {
+              <tr>
+                <td colspan="7" class="text-center py-16 text-neutral-500 font-medium">
+                  <div class="flex flex-col items-center justify-center gap-2">
+                    <svg class="w-8 h-8 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>No sales orders found matching your search.</span>
+                    <span class="text-xs text-neutral-600">You can import orders using the "Import Excel" button above.</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination Controls (Fixed Height) -->
+  <div class="shrink-0 flex items-center justify-between bg-[#181818] px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-neutral-800 shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
+    <button 
+      type="button"
+      class="px-3.5 py-1.5 bg-[#242424] hover:bg-[#2e2e2e] disabled:opacity-40 disabled:hover:bg-[#242424] text-neutral-200 text-xs font-semibold rounded-lg border border-neutral-700 transition-colors disabled:cursor-not-allowed cursor-pointer"
+      (click)="prevPage()" 
+      [disabled]="pageNumber() === 1 || isLoading()">
+      &#8592; Previous
+    </button>
+    
+    <div class="text-xs text-neutral-400 text-center">
+      Page <strong class="text-white font-bold">{{ pageNumber() }}</strong> of <strong class="text-white font-bold">{{ totalPages() }}</strong> 
+      <span class="hidden sm:inline text-neutral-500 ml-1">({{ totalCount() }} total orders)</span>
+    </div>
+
+    <button 
+      type="button"
+      class="px-3.5 py-1.5 bg-[#242424] hover:bg-[#2e2e2e] disabled:opacity-40 disabled:hover:bg-[#242424] text-neutral-200 text-xs font-semibold rounded-lg border border-neutral-700 transition-colors disabled:cursor-not-allowed cursor-pointer"
+      (click)="nextPage()" 
+      [disabled]="pageNumber() >= totalPages() || isLoading()">
+      Next &#8594;
+    </button>
+  </div>
+
+</div>

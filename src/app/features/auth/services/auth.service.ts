@@ -30,7 +30,7 @@ export class AuthService {
 
   /**
    * isLoggedIn() is a Helper method for AuthGuard to check login status.
-   * It Returns true if user data exists in memory.
+   * It Returns true if user data exists in memory./
    */
   isLoggedin(): boolean {
     return this.currentUser() !== null;

@@ -10,7 +10,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   console.log('--- AuthGuard Triggered ---');
   console.log('In-memory isLoggedIn status:', authService.isLoggedin());
 
-  // 1. If already authenticated in memory, let user through immediately
+  // 1. If already authenticated in memory, let user through immediately/
   if (authService.isLoggedin()) {
     return true;
   }

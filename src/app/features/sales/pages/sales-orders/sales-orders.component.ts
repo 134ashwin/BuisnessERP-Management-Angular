@@ -6,7 +6,7 @@ import { SalesOrder } from '../../models/sales.model';
 import * as XLSX from 'xlsx';
 
 @Component({
-  selector: 'app-sales-orders',
+  selector: 'app-sales-orders',//
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './sales-orders.component.html',

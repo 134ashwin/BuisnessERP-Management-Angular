@@ -1,48 +1,58 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { SalesService } from '../services/sales.service';
-import { SalesOrder } from '../models/sales.model';
+import { SalesCustomer } from '../models/sales.model';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.scss']
 })
 export class SalesComponent implements OnInit {
   private salesService = inject(SalesService);
 
-  // Master Data Source (Stored once from API)
-  allSalesOrders = signal<SalesOrder[]>([]);
+  // 2 main view tabs: "B2B Sales" and "B2C Sales"
+  activeTab = signal<'B2B' | 'B2C'>('B2B');
+
+  // Customer Data Sources for B2B and B2C
+  b2bCustomers = signal<SalesCustomer[]>([]);
+  b2cCustomers = signal<SalesCustomer[]>([]);
+
   isLoading = signal(false);
   isUploading = signal(false);
 
   // Filter & Pagination Signals
-  searchOrderNo = signal('');
-  searchDate = signal('');
+  searchQuery = signal('');
   pageNumber = signal(1);
   pageSize = signal(10);
 
-  // 1. LIVE DERIVED FILTERING (Fires instantly on search signals change)
-  filteredSalesOrders = computed(() => {
-    const rawOrders = this.allSalesOrders();
-    const orderNoQuery = this.searchOrderNo().trim().toLowerCase();
-    const dateQuery = this.searchDate().trim();
+  // Active dataset based on selected tab
+  currentTabCustomers = computed(() => {
+    return this.activeTab() === 'B2B' ? this.b2bCustomers() : this.b2cCustomers();
+  });
 
-    return rawOrders.filter(order => {
-      const matchesOrderNo = !orderNoQuery || 
-        order.orderNo?.toLowerCase().includes(orderNoQuery);
+  // 1. LIVE INSTANT FILTERING across Customer Name, Mobile, Email, GST Number
+  filteredCustomers = computed(() => {
+    const rawList = this.currentTabCustomers();
+    const q = this.searchQuery().trim().toLowerCase();
 
-      const matchesDate = !dateQuery || 
-        order.orderDate?.startsWith(dateQuery);
+    if (!q) return rawList;
 
-      return matchesOrderNo && matchesDate;
+    return rawList.filter(item => {
+      const name = (item.name || item.customerName || '').toLowerCase();
+      const mobile = (item.mobileNumber || '').toLowerCase();
+      const email = (item.email || '').toLowerCase();
+      const gst = (item.gstNumber || '').toLowerCase();
+
+      return name.includes(q) || mobile.includes(q) || email.includes(q) || gst.includes(q);
     });
   });
 
   // 2. COMPUTED PAGINATION METRICS
-  totalCount = computed(() => this.filteredSalesOrders().length);
+  totalCount = computed(() => this.filteredCustomers().length);
 
   totalPages = computed(() => {
     const total = this.totalCount();
@@ -51,52 +61,59 @@ export class SalesComponent implements OnInit {
   });
 
   // 3. CURRENT PAGE SLICE FOR HTML TABLE
-  pagedSalesOrders = computed(() => {
-    const filtered = this.filteredSalesOrders();
+  pagedCustomers = computed(() => {
+    const filtered = this.filteredCustomers();
     const start = (this.pageNumber() - 1) * this.pageSize();
     const end = start + this.pageSize();
     return filtered.slice(start, end);
   });
 
   ngOnInit(): void {
-    this.fetchAllSales();
+    this.fetchData();
   }
 
-  // Fetch all 17,000 rows from backend ONCE
-  fetchAllSales(): void {
+  // Switch between B2B Sales and B2C Sales tabs
+  switchTab(tab: 'B2B' | 'B2C'): void {
+    this.activeTab.set(tab);
+    this.pageNumber.set(1);
+    this.searchQuery.set('');
+  }
+
+  // Fetch both B2B and B2C sales customers
+  fetchData(): void {
     this.isLoading.set(true);
 
-    // Send pageNumber: 1, pageSize: 50000 or fetch all array directly
-    this.salesService.getSalesOrders({ pageNumber: 1, pageSize: 50000 }).subscribe({
-      next: (res: any) => {
-        const records: SalesOrder[] = Array.isArray(res) ? res : (res?.items || []);
-        this.allSalesOrders.set(records);
+    this.salesService.getB2BCustomers().subscribe({
+      next: (b2b) => {
+        this.b2bCustomers.set(b2b || []);
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Failed to load sales orders:', err);
-        this.allSalesOrders.set([]);
+        console.error('Failed to load B2B customers:', err);
+        this.b2bCustomers.set([]);
         this.isLoading.set(false);
+      }
+    });
+
+    this.salesService.getB2CCustomers().subscribe({
+      next: (b2c) => {
+        this.b2cCustomers.set(b2c || []);
+      },
+      error: (err) => {
+        console.error('Failed to load B2C customers:', err);
+        this.b2cCustomers.set([]);
       }
     });
   }
 
-  // Live Instant Search Trigger
-  updateOrderNo(event: Event): void {
+  updateSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
-    this.searchOrderNo.set(value);
-    this.pageNumber.set(1); // Reset to page 1 on filter change
-  }
-
-  updateDate(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchDate.set(value);
+    this.searchQuery.set(value);
     this.pageNumber.set(1);
   }
 
   onReset(): void {
-    this.searchOrderNo.set('');
-    this.searchDate.set('');
+    this.searchQuery.set('');
     this.pageNumber.set(1);
   }
 
@@ -112,26 +129,11 @@ export class SalesComponent implements OnInit {
     }
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
-    this.isUploading.set(true);
-
-    this.salesService.importExcel(file).subscribe({
-      next: (res) => {
-        alert(res.message || 'Excel imported successfully!');
-        this.isUploading.set(false);
-        input.value = '';
-        this.fetchAllSales(); // Refresh local cache after file upload
-      },
-      error: (err) => {
-        console.error('Upload error:', err);
-        alert('Upload failed!');
-        this.isUploading.set(false);
-        input.value = '';
-      }
-    });
+  // Display helper for GST: if missing, renders 'No GST Number'
+  formatGst(gst?: string | null): string {
+    if (!gst || gst.trim() === '' || gst.toLowerCase() === 'no gst number') {
+      return 'No GST Number';
+    }
+    return gst;
   }
 }

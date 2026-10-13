@@ -1,100 +1,168 @@
-<div class="flex flex-col h-[calc(100vh-6.5rem)] w-full min-w-0 p-3 sm:p-5 box-border overflow-hidden gap-3.5 sm:gap-4">
+<div class="flex flex-col h-[calc(100vh-6.5rem)] w-full min-w-0 p-3 sm:p-5 box-border overflow-hidden gap-3.5 sm:gap-4 font-sans">
   
-  <!-- Page Header (Fixed Height) -->
-  <div class="shrink-0">
-    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white m-0 drop-shadow-[0_0_20px_rgba(229,9,20,0.25)]">
-      Sales
-    </h1>
-    <p class="text-xs text-neutral-400 m-0 mt-0.5">
-      Live orders feed and imports
-    </p>
+  <!-- Page Header & Tab View Switchers (Fixed Height) -->
+  <div class="shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-neutral-800 gap-3">
+    <div>
+      <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#E50914] mb-0.5">
+        <span>Sales Management</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white m-0 drop-shadow-[0_0_20px_rgba(229,9,20,0.25)]">
+        Buisness Sales 
+      </h1>
+      <p class="text-xs text-neutral-400 m-0 mt-0.5">
+        Categorized Customer in  (B2B & B2C)
+      </p>
+    </div>
+
+    <!-- 2 MAIN VIEW BUTTONS / TABS: "B2B Sales" and "B2C Sales" -->
+    <div class="inline-flex p-1 bg-[#181818] border border-neutral-800 rounded-xl shadow-inner gap-1.5">
+      <!-- B2B Sales Button / Tab -->
+      <button
+        type="button"
+        (click)="switchTab('B2B')"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer focus:outline-none"
+        [ngClass]="activeTab() === 'B2B' 
+          ? 'bg-[#E50914] text-white shadow-lg shadow-red-950/50 scale-[1.02]' 
+          : 'bg-transparent text-neutral-400 hover:text-white hover:bg-[#242424]'"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+        </svg>
+        <span>B2B Sales</span>
+        <span 
+          class="px-2 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide"
+          [ngClass]="activeTab() === 'B2B' ? 'bg-black/30 text-white' : 'bg-neutral-800 text-neutral-400'"
+        >
+          {{ b2bCustomers().length }}
+        </span>
+      </button>
+
+      <!-- B2C Sales Button / Tab -->
+      <button
+        type="button"
+        (click)="switchTab('B2C')"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer focus:outline-none"
+        [ngClass]="activeTab() === 'B2C' 
+          ? 'bg-[#E50914] text-white shadow-lg shadow-red-950/50 scale-[1.02]' 
+          : 'bg-transparent text-neutral-400 hover:text-white hover:bg-[#242424]'"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        <span>B2C Sales</span>
+        <span 
+          class="px-2 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide"
+          [ngClass]="activeTab() === 'B2C' ? 'bg-black/30 text-white' : 'bg-neutral-800 text-neutral-400'"
+        >
+          {{ b2cCustomers().length }}
+        </span>
+      </button>
+    </div>
   </div>
 
-  <!-- Filter Controls (Fixed Height) -->
-  <div class="shrink-0 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 bg-[#1f1f1f] p-3 rounded-xl border border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
+  <!-- Filter & Search Controls (Fixed Height) -->
+  <div class="shrink-0 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 bg-[#181818] p-3 rounded-xl border border-neutral-800 shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
       
-      <!-- Live Filter Input -->
-      <div class="relative flex items-center w-full sm:w-64">
+      <!-- Live Search Input -->
+      <div class="relative flex items-center w-full sm:w-80">
         <svg class="absolute left-3 text-neutral-500 pointer-events-none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
         <input 
           type="text" 
-          class="w-full bg-[#2b2b2b] border border-white/15 text-white pl-9 pr-3 py-2 rounded-md text-xs sm:text-sm outline-none transition-all placeholder:text-neutral-500 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]" 
-          placeholder="Search by Order No..." 
-          [value]="searchOrderNo()" 
-          (input)="updateOrderNo($event)" />
+          class="w-full bg-[#242424] border border-neutral-700 text-white pl-9 pr-3 py-2 rounded-lg text-xs sm:text-sm outline-none transition-all placeholder:text-neutral-500 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]" 
+          placeholder="Search customer, mobile, email, GST..." 
+          [value]="searchQuery()" 
+          (input)="updateSearch($event)" 
+        />
       </div>
-
-      <!-- Live Date Picker Filter -->
-      <input 
-        type="date" 
-        class="bg-[#2b2b2b] border border-white/15 text-neutral-200 px-3 py-2 rounded-md text-xs sm:text-sm outline-none transition-all focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914] [color-scheme:dark]" 
-        [value]="searchDate()" 
-        (change)="updateDate($event)" />
 
       <!-- Reset Button -->
       <button 
         type="button"
-        class="bg-[#333333] text-neutral-200 px-4 py-2 rounded-md font-semibold text-xs border-0 cursor-pointer transition-colors hover:bg-[#444444] text-center" 
+        class="bg-[#242424] text-neutral-300 px-4 py-2 rounded-lg font-semibold text-xs border border-neutral-700 cursor-pointer transition-colors hover:bg-[#2c2c2c] hover:text-white text-center" 
         (click)="onReset()">
         Reset
       </button>
+
+      <!-- Refresh Button -->
+      <button 
+        type="button"
+        class="bg-[#242424] text-neutral-300 px-3 py-2 rounded-lg font-semibold text-xs border border-neutral-700 cursor-pointer transition-colors hover:bg-[#2c2c2c] hover:text-white text-center" 
+        (click)="fetchData()"
+        title="Refresh data from server">
+        ↻ Refresh
+      </button>
     </div>
 
-    <!-- Upload Section -->
-    <div class="shrink-0">
-      <label class="relative inline-flex items-center justify-center w-full md:w-auto cursor-pointer">
-        <input 
-          type="file" 
-          class="hidden" 
-          (change)="onFileSelected($event)" 
-          accept=".xlsx, .xls" 
-          [disabled]="isUploading()" />
-        <span class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#E50914] hover:bg-[#b80710] text-white rounded-md font-semibold text-xs transition-colors shadow-[0_2px_10px_rgba(229,9,20,0.3)] disabled:opacity-50 disabled:cursor-not-allowed">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="17 8 12 3 7 8"></polyline>
-            <line x1="12" y1="3" x2="12" y2="15"></line>
-          </svg>
-          {{ isUploading() ? 'Uploading...' : 'Import Excel' }}
-        </span>
-      </label>
+    <!-- Active Window Indicator -->
+    <div class="shrink-0 flex items-center gap-2">
+      <span class="text-xs text-neutral-400">Viewing window:</span>
+      <span 
+        class="px-2.5 py-1 rounded-md text-xs font-bold"
+        [ngClass]="activeTab() === 'B2B' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'"
+      >
+        {{ activeTab() === 'B2B' ? 'B2B Sales (GST Registered)' : 'B2C Sales (Retail / Consumer)' }}
+      </span>
     </div>
   </div>
 
   <!-- Data Table Container (Flex Fill + Internal Scroll Only) -->
-  <div class="flex-1 min-h-0 bg-[#1f1f1f] rounded-xl border border-white/10 overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.4)] flex flex-col">
+  <div class="flex-1 min-h-0 bg-[#181818] rounded-xl border border-neutral-800 overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.4)] flex flex-col">
     <div class="w-full h-full overflow-auto [-webkit-overflow-scrolling:touch]">
-      <table class="w-full border-collapse text-left text-xs sm:text-sm min-w-[750px]">
-        <thead class="sticky top-0 bg-[#181818] z-10 border-b border-white/10 text-neutral-400 font-bold text-[0.7rem] uppercase tracking-wider">
+      <!-- EXACT TABLE COLUMNS FOR BOTH WINDOWS:
+           Customer Name | Mobile Number | Email | GST Number
+      -->
+      <table class="w-full border-collapse text-left text-xs sm:text-sm min-w-[700px]">
+        <thead class="sticky top-0 bg-[#101010] z-10 border-b border-neutral-800 text-neutral-400 font-bold text-[0.72rem] uppercase tracking-wider">
           <tr>
-            <th class="px-3 py-3 sm:px-4 sm:py-3.5">Order Date</th>
-            <th class="px-3 py-3 sm:px-4 sm:py-3.5">Order No</th>
-            <th class="px-3 py-3 sm:px-4 sm:py-3.5">Main SKU</th>
-            <th class="px-3 py-3 sm:px-4 sm:py-3.5">Sub SKU</th>
-            <th class="px-3 py-3 sm:px-4 sm:py-3.5">Size</th>
-            <th class="px-3 py-3 sm:px-4 sm:py-3.5">Customer</th>
-            <th class="px-3 py-3 sm:px-4 sm:py-3.5">Description</th>
+            <th class="px-5 py-3.5">Customer Name</th>
+            <th class="px-5 py-3.5">Mobile Number</th>
+            <th class="px-5 py-3.5">Email</th>
+            <th class="px-5 py-3.5">GST Number</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-white/5">
-          @for (order of pagedSalesOrders(); track order.id) {
-            <tr class="transition-colors hover:bg-white/[0.03]">
-              <td class="px-3 py-2.5 sm:px-4 sm:py-3 text-neutral-400 whitespace-nowrap">{{ order.orderDate }}</td>
-              <td class="px-3 py-2.5 sm:px-4 sm:py-3 font-bold text-[#38bdf8] whitespace-nowrap">{{ order.orderNo }}</td>
-              <td class="px-3 py-2.5 sm:px-4 sm:py-3 font-mono text-white font-medium whitespace-nowrap">{{ order.mainSku }}</td>
-              <td class="px-3 py-2.5 sm:px-4 sm:py-3 font-mono text-neutral-300 whitespace-nowrap">{{ order.subSku }}</td>
-              <td class="px-3 py-2.5 sm:px-4 sm:py-3 font-semibold text-white whitespace-nowrap">{{ order.size }}</td>
-              <td class="px-3 py-2.5 sm:px-4 sm:py-3 text-neutral-200 font-medium whitespace-nowrap">{{ order.customer }}</td>
-              <td class="px-3 py-2.5 sm:px-4 sm:py-3 text-neutral-400 truncate max-w-[200px]" [title]="order.description">{{ order.description }}</td>
+        <tbody class="divide-y divide-neutral-800/60">
+          @for (item of pagedCustomers(); track item.id) {
+            <tr class="transition-colors hover:bg-[#202020]">
+              <!-- Column 1: Customer Name -->
+              <td class="px-5 py-3.5 font-semibold text-white whitespace-nowrap">
+                {{ item.name || item.customerName }}
+              </td>
+
+              <!-- Column 2: Mobile Number -->
+              <td class="px-5 py-3.5 font-mono text-neutral-200 whitespace-nowrap">
+                {{ item.mobileNumber }}
+              </td>
+
+              <!-- Column 3: Email -->
+              <td class="px-5 py-3.5 text-neutral-300 whitespace-nowrap">
+                {{ item.email || '—' }}
+              </td>
+
+              <!-- Column 4: GST Number: If missing, render text 'No GST Number' -->
+              <td class="px-5 py-3.5 font-mono whitespace-nowrap">
+                @if (formatGst(item.gstNumber) === 'No GST Number') {
+                  <span class="text-neutral-500 italic">No GST Number</span>
+                } @else {
+                  <span class="text-[#38bdf8] font-medium tracking-wide">{{ item.gstNumber }}</span>
+                }
+              </td>
             </tr>
           } @empty {
             @if (!isLoading()) {
               <tr>
-                <td colspan="7" class="text-center py-12 text-neutral-500 font-medium">No sales records found.</td>
+                <td colspan="4" class="text-center py-16 text-neutral-500 font-medium">
+                  <div class="flex flex-col items-center justify-center gap-2">
+                    <svg class="w-8 h-8 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                    </svg>
+                    <span>No {{ activeTab() }} sales records found.</span>
+                    <span class="text-xs text-neutral-600">Customers added in Customer Hub will automatically appear here based on GST presence.</span>
+                  </div>
+                </td>
               </tr>
             }
           }
@@ -104,10 +172,10 @@
   </div>
 
   <!-- Pagination Controls (Fixed Height) -->
-  <div class="shrink-0 flex items-center justify-between bg-[#1f1f1f] px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
+  <div class="shrink-0 flex items-center justify-between bg-[#181818] px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-neutral-800 shadow-[0_4px_12px_rgba(0,0,0,0.2)]">
     <button 
       type="button"
-      class="px-3 py-1.5 bg-[#2b2b2b] hover:bg-[#383838] disabled:opacity-40 disabled:hover:bg-[#2b2b2b] text-neutral-200 text-xs font-semibold rounded transition-colors disabled:cursor-not-allowed"
+      class="px-3.5 py-1.5 bg-[#242424] hover:bg-[#2e2e2e] disabled:opacity-40 disabled:hover:bg-[#242424] text-neutral-200 text-xs font-semibold rounded-lg border border-neutral-700 transition-colors disabled:cursor-not-allowed cursor-pointer"
       (click)="prevPage()" 
       [disabled]="pageNumber() === 1 || isLoading()">
       &#8592; Previous
@@ -115,12 +183,12 @@
     
     <div class="text-xs text-neutral-400 text-center">
       Page <strong class="text-white font-bold">{{ pageNumber() }}</strong> of <strong class="text-white font-bold">{{ totalPages() }}</strong> 
-      <span class="hidden sm:inline text-neutral-500 ml-1">({{ totalCount() }} total orders)</span>
+      <span class="hidden sm:inline text-neutral-500 ml-1">({{ totalCount() }} total {{ activeTab() }} customers)</span>
     </div>
 
     <button 
       type="button"
-      class="px-3 py-1.5 bg-[#2b2b2b] hover:bg-[#383838] disabled:opacity-40 disabled:hover:bg-[#2b2b2b] text-neutral-200 text-xs font-semibold rounded transition-colors disabled:cursor-not-allowed"
+      class="px-3.5 py-1.5 bg-[#242424] hover:bg-[#2e2e2e] disabled:opacity-40 disabled:hover:bg-[#242424] text-neutral-200 text-xs font-semibold rounded-lg border border-neutral-700 transition-colors disabled:cursor-not-allowed cursor-pointer"
       (click)="nextPage()" 
       [disabled]="pageNumber() >= totalPages() || isLoading()">
       Next &#8594;

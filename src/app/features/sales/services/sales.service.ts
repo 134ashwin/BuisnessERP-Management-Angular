@@ -1,20 +1,44 @@
-// Why it exists: Sends FormData containing the file stream over HTTP to the backend API.
-// Ensures FormData key matches "file" precisely
-// and this class lets HttpClient automatically handle content boundaries (never manually add Content-Type: multipart/form-data header in Angular).
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { SalesOrder, PagedResult, SalesFilter } from '../models/sales.model';
-import { environment } from '../../../../environments/environment'; // Import environment for baseUrl
-
+import { Observable, map } from 'rxjs';
+import { SalesOrder, PagedResult, SalesFilter, SalesCustomer } from '../models/sales.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SalesService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl; // Single source of truth for API base URL
+  private apiUrl = environment.apiUrl;
+
+  getB2BCustomers(): Observable<SalesCustomer[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/customers/b2b`).pipe(
+      map((items) => (items || []).map(item => this.normalizeCustomer(item)))
+    );
+  }
+
+  getB2CCustomers(): Observable<SalesCustomer[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/customers/b2c`).pipe(
+      map((items) => (items || []).map(item => this.normalizeCustomer(item)))
+    );
+  }
+
+  private normalizeCustomer(item: any): SalesCustomer {
+    const rawGst = item.gstNumber ?? item.GstNumber;
+    const formattedGst = (!rawGst || rawGst.trim() === '' || rawGst.toLowerCase() === 'no gst number')
+      ? 'No GST Number'
+      : rawGst;
+
+    return {
+      id: item.id ?? item.Id,
+      name: item.name ?? item.Name ?? item.customerName ?? item.customer ?? '',
+      customerName: item.name ?? item.Name ?? item.customerName ?? item.customer ?? '',
+      mobileNumber: item.mobileNumber ?? item.MobileNumber ?? '',
+      email: item.email ?? item.Email ?? null,
+      gstNumber: formattedGst,
+      isB2B: item.isB2B ?? (formattedGst !== 'No GST Number')
+    };
+  }
 
   getSalesOrders(filters: SalesFilter): Observable<PagedResult<SalesOrder>> {
     let params = new HttpParams()
@@ -29,7 +53,7 @@ export class SalesService {
       params = params.set('date', filters.date);
     }
 
-    return this.http.get<PagedResult<SalesOrder>>(this.apiUrl + '/sales', { params });
+    return this.http.get<PagedResult<SalesOrder>>(`${this.apiUrl}/sales`, { params });
   }
 
   importExcel(file: File): Observable<{ message: string }> {

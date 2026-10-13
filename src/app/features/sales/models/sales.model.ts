@@ -1,3 +1,13 @@
+export interface SalesCustomer {
+  id: number;
+  name: string;
+  customerName?: string;
+  mobileNumber: string;
+  email?: string | null;
+  gstNumber: string;
+  isB2B: boolean;
+}
+
 export interface SalesOrder {
   id: string;
   orderDate: string;

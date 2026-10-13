@@ -107,6 +107,13 @@
                 {{ item.gstNumber || 'No GST Number' }}
               </span>
             </td>
+             <td class="py-4 px-6 font-mono text-xs">
+              <span 
+                [ngClass]="item.address === 'Empty' ? 'text-neutral-500 italic' : 'text-[#38bdf8] font-medium'"
+              >
+                {{ item.address || 'Empty' }}
+              </span>
+            </td>
             <td class="py-4 px-6 font-mono text-xs">
               <span 
                 [ngClass]="item.description === 'Empty' ? 'text-neutral-500 italic' : 'text-[#38bdf8] font-medium'"
@@ -253,7 +260,7 @@
               type="tel" 
               [ngModel]="newCustomer().address" 
               (ngModelChange)="updateField('address', $event)"
-              name="Address"
+              name="address"
               placeholder="e.g. Murlipura,Jaipur" 
               class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border transition-all outline-none font-mono"
               [ngClass]="formErrors().address ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]'"
@@ -270,18 +277,15 @@
             </label>
             <input 
               type="text" 
-              [ngModel]="newCustomer().gstNumber" 
-              (ngModelChange)="updateField('gstNumber', $event)"
-              name="gstNumber"
+              [ngModel]="newCustomer().description" 
+              (ngModelChange)="updateField('description', $event)"
+              name="description"
               placeholder="e.g. 27AAAAA0000A1Z5 (Leaves empty for B2C)" 
               class="w-full bg-[#242424] text-white placeholder-neutral-500 text-sm rounded-lg px-4 py-2.5 border transition-all outline-none font-mono uppercase"
-              [ngClass]="formErrors().gstNumber ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]'"
+              [ngClass]="formErrors().description? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]'"
             />
-            <p *ngIf="formErrors().gstNumber" class="text-red-400 text-xs mt-1">
-              {{ formErrors().gstNumber }}
-            </p>
-            <p class="text-[11px] text-neutral-400 mt-1 italic">
-              💡 Providing a GST number routes this customer to B2B Sales; leaving it empty routes to B2C Sales.
+            <p *ngIf="formErrors().description" class="text-red-400 text-xs mt-1">
+              {{ formErrors().description }}
             </p>
           </div>
 

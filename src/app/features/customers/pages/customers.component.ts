@@ -56,7 +56,7 @@ export class CustomersComponent implements OnInit {
       const mobile = (c.mobileNumber || '').toLowerCase();
       const email = (c.email || '').toLowerCase();
       const gst = (c.gstNumber || '').toLowerCase();
-      const addr = (c.address || c.Address || '').toLowerCase();
+      const addr = (c.address || '').toLowerCase();
       return name.includes(q) || mobile.includes(q) || email.includes(q) || gst.includes(q) || addr.includes(q);
     });
   });
@@ -175,9 +175,9 @@ export class CustomersComponent implements OnInit {
     const payload: CustomerCreateDto = {
       name: formData.customerName.trim(),
       mobileNumber: formData.mobileNumber.trim(),
-      address: formData.address.trim(),
       email: formData.email?.trim() ? formData.email.trim() : null,
       gstNumber: formData.gstNumber?.trim() ? formData.gstNumber.trim() : null,
+      address: formData.address.trim(),
       description: formData.description?.trim() ? formData.description.trim() : null
     };
 

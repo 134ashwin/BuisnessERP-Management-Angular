@@ -45,6 +45,7 @@ export class CustomerService {
   }
 
   private mapDtoToCustomer(dto: CustomerResponseDto): Customer {
+    console.log('API Response:', dto);
     const rawGst = dto.gstNumber;
     const formattedGst = (!rawGst || rawGst.trim() === '' || rawGst.toLowerCase() === 'no gst number')
       ? 'No GST Number'
@@ -57,7 +58,7 @@ export class CustomerService {
       mobileNumber: dto.mobileNumber,
       email: dto.email ?? null,
       gstNumber: formattedGst,
-      address:dto.address,
+      address:dto.address ?? 'No Addresss Provided',
       description:dto.description,
       isB2B: dto.isB2B ?? (formattedGst !== 'No GST Number')
     };

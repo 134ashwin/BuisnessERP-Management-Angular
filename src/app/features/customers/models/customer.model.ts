@@ -35,7 +35,6 @@ export interface Customer {
   customerName?: string; // Compatibility alias
   mobileNumber: string;
   address: string; // Required
-  Address?: string; // Compatibility alias for casing
   email?: string | null;
   gstNumber: string;
   description?: string | null;

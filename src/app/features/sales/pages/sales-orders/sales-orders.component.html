@@ -24,15 +24,9 @@
   <!-- Page Header (Fixed Height) -->
   <div class="shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-neutral-800 gap-3">
     <div>
-      <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#E50914] mb-0.5">
-        <span>Order Operations</span>
-      </div>
       <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white m-0 drop-shadow-[0_0_20px_rgba(229,9,20,0.25)]">
-        Sales Orders
+        Sales 
       </h1>
-      <p class="text-xs text-neutral-400 m-0 mt-0.5">
-        Bulk order tracking with Excel Import & Export
-      </p>
     </div>
 
     <!-- Action Buttons: Import Excel & Export Excel -->
@@ -83,7 +77,7 @@
       <input 
         type="text" 
         class="w-full bg-[#242424] border border-neutral-700 text-white pl-10 pr-4 py-2.5 rounded-lg text-xs sm:text-sm outline-none transition-all placeholder:text-neutral-500 focus:border-[#E50914] focus:ring-1 focus:ring-[#E50914]" 
-        placeholder="Search any field: Order No, Date, Main SKU, Sub SKU, Size, Customer, Description..." 
+        placeholder="Search orderNo" 
         [value]="searchQuery()" 
         (input)="onSearch($event)" 
       />
